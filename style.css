@@ -89,6 +89,58 @@ nav {
 .nav-links a:hover { color: var(--green-600); }
 .nav-links a.active { color: var(--green-600); font-weight: 600; }
 
+.lang-switcher {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: auto;
+}
+
+.lang-selector {
+  border: 1.5px solid rgba(99,153,34,0.18);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-700);
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-width: 140px;
+}
+
+.lang-selector option {
+  font-weight: 600;
+}
+
+.lang-selector:focus {
+  outline: none;
+  border-color: var(--green-600);
+  box-shadow: 0 0 0 3px rgba(99,153,34,0.12);
+}
+
+.lang-toggle {
+  background: transparent;
+  border: 1.5px solid rgba(99,153,34,0.18);
+  color: var(--gray-600);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.lang-toggle.active {
+  background: var(--green-400);
+  color: white;
+  border-color: var(--green-400);
+}
+
+.lang-toggle:hover {
+  background: rgba(99,153,34,0.08);
+}
+
 .nav-cta {
   background: var(--green-400);
   color: white !important;
@@ -870,4 +922,7 @@ footer strong { color: var(--green-100); }
 #app-section,
 #emergency-section {
   display: none;
+}
+.hero a {
+  text-decoration: none;
 }

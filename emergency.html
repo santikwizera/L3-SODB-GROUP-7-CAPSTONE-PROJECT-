@@ -7,54 +7,87 @@
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-page="emergency" data-title-key="titleEmergency">
 
 <nav>
+  
   <div class="logo">
     <div class="logo-icon"></div>
     <span class="logo-text">Near<span>Care</span></span>
   </div>
+  
   <ul class="nav-links">
+<<<<<<< HEAD
     <li><a href="home.html">Home</a></li>
     <li><a href="Hospitals.html">Find Hospitals</a></li>
     <li><a href="emergency.html" class="active">Emergency</a></li>
     <li><a href="about.html">About Rwanda Health</a></li>
     <li><a href="FIXED DEMO.html" class="nav-cta">Get the App</a></li>
+=======
+    <li><a href="home.html" data-i18n-key="navHome">Home</a></li>
+    <li><a href="Hospitals.html" data-i18n-key="navHospitals">Find Hospitals</a></li>
+    <li><a href="emergency.html" class="active" data-i18n-key="navEmergency">Emergency</a></li>
+    <li><a href="about.html" data-i18n-key="navAbout">About Rwanda Health</a></li>
+    <li><a href="#" class="nav-cta" data-i18n-key="navApp">Get the App</a></li>
+    <li class="lang-switcher">
+      <select class="lang-selector" onchange="switchLanguage(this.value)" aria-label="Select language">
+        <option value="en">EN - English</option>
+        <option value="fr">FR - Français</option>
+        <option value="ar">AR - العربية</option>
+        <option value="es">ES - Español</option>
+        <option value="pt">PT - Português</option>
+        <option value="de">DE - Deutsch</option>
+        <option value="it">IT - Italiano</option>
+        <option value="ru">RU - Русский</option>
+        <option value="sw">SW - Kiswahili</option>
+        <option value="am">AM - አማርኛ</option>
+        <option value="ha">HA - Hausa</option>
+        <option value="yo">YO - Yoruba</option>
+        <option value="af">AF - Afrikaans</option>
+        <option value="nl">NL - Nederlands</option>
+        <option value="zu">ZU - isiZulu</option>
+        <option value="el">EL - Ελληνικά</option>
+      </select>
+    </li>
+>>>>>>> 4aad849 (fix languages)
   </ul>
 </nav>
 
 <section class="page-section">
   <div class="emergency-content">
-    <h1>Emergency Services</h1>
-    <p>When every second counts, NearCare helps you access life-saving care immediately.</p>
+    <h1 data-i18n-key="emergencyHeading">Emergency Services</h1>
+    <p data-i18n-key="emergencyParagraph">When every second counts, NearCare helps you access life-saving care immediately.</p>
+    
     <div class="emergency-grid">
       <div class="emergency-card-large">
-        <h3>🚨 Immediate Action</h3>
-        <p>If you're in immediate danger, call 912 now for ambulance dispatch. Our system locates the nearest emergency facility and guides responders to your location.</p>
-        <button class="emergency-call-large" onclick="window.location.href='tel:912'">📞 Call 912 Emergency</button>
+        <h3 data-i18n-key="emergencyActionTitle">🚨 Immediate Action</h3>
+        <p data-i18n-key="emergencyActionText">If you're in immediate danger, call 912 now for ambulance dispatch. Our system locates the nearest emergency facility and guides responders to your location.</p>
+        <button class="emergency-call-large" onclick="window.location.href='tel:912'" data-i18n-key="emergencyCallBtn">📞 Call 912 Emergency</button>
       </div>
       <div class="emergency-card-large">
-        <h3>🏥 Emergency Facilities</h3>
-        <p>Rwanda has dedicated emergency units in major hospitals across all provinces. Use our locator to find the closest one and get directions.</p>
-        <button class="emergency-locate" onclick="window.location.href='Hospitals.html'">Find Nearest Emergency</button>
+        <h3 data-i18n-key="emergencyFacilityTitle">🏥 Emergency Facilities</h3>
+        <p data-i18n-key="emergencyFacilityText">Rwanda has dedicated emergency units in major hospitals across all provinces. Use our locator to find the closest one and get directions.</p>
+        <button class="emergency-locate" onclick="window.location.href='Hospitals.html'" data-i18n-key="emergencyLocateBtn">Find Nearest Emergency</button>
       </div>
     </div>
+   
     <div class="emergency-tips">
-      <h3>Emergency Preparedness Tips</h3>
+      <h3 data-i18n-key="emergencyTipsTitle">Emergency Preparedness Tips</h3>
       <ul>
-        <li>Know your location and nearest health facility</li>
-        <li>Keep emergency contacts saved in your phone</li>
-        <li>Have health insurance information ready</li>
-        <li>Learn basic first aid for common emergencies</li>
+        <li data-i18n-key="emergencyTip1">Know your location and nearest health facility</li>
+        <li data-i18n-key="emergencyTip2">Keep emergency contacts saved in your phone</li>
+        <li data-i18n-key="emergencyTip3">Have health insurance information ready</li>
+        <li data-i18n-key="emergencyTip4">Learn basic first aid for common emergencies</li>
       </ul>
     </div>
   </div>
 </section>
 
 <footer>
-  <p><strong>NearCare Rwanda</strong> — Connecting communities to quality healthcare since 2026.</p>
-  <p style="margin-top:4px">Data sourced from Rwanda Ministry of Health · Kigali, Rwanda</p>
+  <p><strong>NearCare Rwanda</strong> — <span data-i18n-key="footerLine1">Connecting communities to quality healthcare since 2026.</span></p>
+  <p style="margin-top:4px" data-i18n-key="footerLine2">Data sourced from Rwanda Ministry of Health · Kigali, Rwanda</p>
 </footer>
 
+<script src="lang.js" defer></script>
 </body>
 </html>

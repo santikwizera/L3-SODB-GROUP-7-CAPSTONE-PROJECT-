@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-page="about" data-title-key="titleAbout">
 
 <nav>
   <div class="logo">
@@ -15,48 +15,77 @@
     <span class="logo-text">Near<span>Care</span></span>
   </div>
   <ul class="nav-links">
+<<<<<<< HEAD
     <li><a href="home.html">Home</a></li>
     <li><a href="Hospitals.html">Find Hospitals</a></li>
     <li><a href="emergency.html">Emergency</a></li>
     <li><a href="about.html" class="active">About Rwanda Health</a></li>
     <li><a href="FIXED DEMO.html" class="nav-cta">Get the App</a></li>
+=======
+    <li><a href="home.html" data-i18n-key="navHome">Home</a></li>
+    <li><a href="Hospitals.html" data-i18n-key="navHospitals">Find Hospitals</a></li>
+    <li><a href="emergency.html" data-i18n-key="navEmergency">Emergency</a></li>
+    <li><a href="about.html" class="active" data-i18n-key="navAbout">About Rwanda Health</a></li>
+    <li><a href="#" class="nav-cta" data-i18n-key="navApp">Get the App</a></li>
+    <li class="lang-switcher">
+      <select class="lang-selector" onchange="switchLanguage(this.value)" aria-label="Select language">
+        <option value="en">EN - English</option>
+        <option value="fr">FR - Français</option>
+        <option value="ar">AR - العربية</option>
+        <option value="es">ES - Español</option>
+        <option value="pt">PT - Português</option>
+        <option value="de">DE - Deutsch</option>
+        <option value="it">IT - Italiano</option>
+        <option value="ru">RU - Русский</option>
+        <option value="sw">SW - Kiswahili</option>
+        <option value="am">AM - አማርኛ</option>
+        <option value="ha">HA - Hausa</option>
+        <option value="yo">YO - Yoruba</option>
+        <option value="af">AF - Afrikaans</option>
+        <option value="nl">NL - Nederlands</option>
+        <option value="zu">ZU - isiZulu</option>
+        <option value="el">EL - Ελληνικά</option>
+      </select>
+    </li>
+>>>>>>> 4aad849 (fix languages)
   </ul>
 </nav>
 
 <section class="page-section">
   <div class="about-content">
-    <h1>About Rwanda Health</h1>
-    <p>Rwanda's healthcare system has made remarkable progress since the 1994 genocide, transforming from one of the weakest in Africa to a model for development. The country now boasts universal health coverage through community-based health insurance schemes.</p>
+    <h1 data-i18n-key="aboutHeading">About Rwanda Health</h1>
+    <p data-i18n-key="aboutParagraph">Rwanda's healthcare system has made remarkable progress since the 1994 genocide, transforming from one of the weakest in Africa to a model for development. The country now boasts universal health coverage through community-based health insurance schemes.</p>
     <div class="about-grid">
       <div class="about-card">
-        <h3>🏥 Healthcare Infrastructure</h3>
-        <p>Rwanda has over 500 health facilities across 30 districts, including 4 referral hospitals, 35 district hospitals, and numerous health centers and clinics.</p>
+        <h3 data-i18n-key="aboutCard1Title">🏥 Healthcare Infrastructure</h3>
+        <p data-i18n-key="aboutCard1Text">Rwanda has over 500 health facilities across 30 districts, including 4 referral hospitals, 35 district hospitals, and numerous health centers and clinics.</p>
       </div>
       <div class="about-card">
-        <h3>👥 Community Health Workers</h3>
-        <p>Over 45,000 community health workers provide essential services at the grassroots level, ensuring healthcare reaches every village.</p>
+        <h3 data-i18n-key="aboutCard2Title">👥 Community Health Workers</h3>
+        <p data-i18n-key="aboutCard2Text">Over 45,000 community health workers provide essential services at the grassroots level, ensuring healthcare reaches every village.</p>
       </div>
       <div class="about-card">
-        <h3>📈 Key Achievements</h3>
+        <h3 data-i18n-key="aboutCard3Title">📈 Key Achievements</h3>
         <ul>
-          <li>Life expectancy increased from 49 to 69 years</li>
-          <li>Maternal mortality reduced by 77%</li>
-          <li>Under-5 mortality decreased by 70%</li>
-          <li>95% of population covered by health insurance</li>
+          <li data-i18n-key="aboutCard3Item1">Life expectancy increased from 49 to 69 years</li>
+          <li data-i18n-key="aboutCard3Item2">Maternal mortality reduced by 77%</li>
+          <li data-i18n-key="aboutCard3Item3">Under-5 mortality decreased by 70%</li>
+          <li data-i18n-key="aboutCard3Item4">95% of population covered by health insurance</li>
         </ul>
       </div>
       <div class="about-card">
-        <h3>🚨 Emergency Services</h3>
-        <p>24/7 ambulance services available nationwide. Call 912 for immediate emergency response across all provinces.</p>
+        <h3 data-i18n-key="aboutCard4Title">🚨 Emergency Services</h3>
+        <p data-i18n-key="aboutCard4Text">24/7 ambulance services available nationwide. Call 912 for immediate emergency response across all provinces.</p>
       </div>
     </div>
   </div>
 </section>
 
 <footer>
-  <p><strong>NearCare Rwanda</strong> — Connecting communities to quality healthcare since 2026.</p>
-  <p style="margin-top:4px">Data sourced from Rwanda Ministry of Health · Kigali, Rwanda</p>
+  <p><strong>NearCare Rwanda</strong> — <span data-i18n-key="footerLine1">Connecting communities to quality healthcare since 2026.</span></p>
+  <p style="margin-top:4px" data-i18n-key="footerLine2">Data sourced from Rwanda Ministry of Health · Kigali, Rwanda</p>
 </footer>
 
+<script src="lang.js" defer></script>
 </body>
 </html>

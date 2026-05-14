@@ -5,16 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NearCare — Find Hospitals Near You in Rwanda</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
-
-<div class="loader-overlay" id="loader">
-  <div class="spinner"></div>
-  <div class="loader-text" id="loaderText">Detecting your location…</div>
-</div>
+<body data-page="home" data-title-key="titleHome">
 
 <nav>
   <div class="logo">
@@ -22,148 +15,146 @@
     <span class="logo-text">Near<span>Care</span></span>
   </div>
   <ul class="nav-links">
+<<<<<<< HEAD
     <li><a href="home.html" class="active">Home</a></li>
     <li><a href="Hospitals.html">Find Hospitals</a></li>
     <li><a href="emergency.html">Emergency</a></li>
     <li><a href="about.html">About Rwanda Health</a></li>
     <li><a href="FIXED DEMO.html" class="nav-cta">Get the App</a></li>
+=======
+    <li><a href="home.html" class="active" data-i18n-key="navHome">Home</a></li>
+    <li><a href="Hospitals.html" data-i18n-key="navHospitals">Find Hospitals</a></li>
+    <li><a href="emergency.html" data-i18n-key="navEmergency">Emergency</a></li>
+    <li><a href="about.html" data-i18n-key="navAbout">About Rwanda Health</a></li>
+    <li><a href="#" class="nav-cta" data-i18n-key="navApp">Get the App</a></li>
+    <li class="lang-switcher">
+      <select class="lang-selector" onchange="switchLanguage(this.value)" aria-label="Select language">
+        <option value="en">EN - English</option>
+        <option value="fr">FR - Français</option>
+        <option value="ar">AR - العربية</option>
+        <option value="es">ES - Español</option>
+        <option value="pt">PT - Português</option>
+        <option value="de">DE - Deutsch</option>
+        <option value="it">IT - Italiano</option>
+        <option value="ru">RU - Русский</option>
+        <option value="sw">SW - Kiswahili</option>
+        <option value="am">AM - አማርኛ</option>
+        <option value="ha">HA - Hausa</option>
+        <option value="yo">YO - Yoruba</option>
+        <option value="af">AF - Afrikaans</option>
+        <option value="nl">NL - Nederlands</option>
+        <option value="zu">ZU - isiZulu</option>
+        <option value="el">EL - Ελληνικά</option>
+      </select>
+    </li>
+>>>>>>> 4aad849 (fix languages)
   </ul>
 </nav>
 
 <section class="hero">
-  <div class="hero-badge">🇷🇼 Rwanda Health Network</div>
-  <h1>Find <em>care</em> wherever<br>you are in Rwanda</h1>
-  <p>Instantly locate hospitals, clinics, and health centres near your current location across all 30 districts.</p>
+  <div class="hero-badge" data-i18n-key="homeHeroBadge">🇷🇼 Rwanda Health Network</div>
+  <h1 data-i18n-key="homeHeroHeading" data-i18n-html>Your health guide in<br><em>every district</em> of Rwanda</h1>
+  <p data-i18n-key="homeHeroParagraph">NearCare brings you a thoughtful overview of healthcare services, emergency readiness, and trusted support resources across the country.</p>
   <div class="hero-actions">
-    <button class="btn-primary" onclick="detectLocation()">
-      <span>📍</span> Use My Location
-    </button>
-    <button class="btn-secondary" onclick="document.getElementById('search').focus()">Browse All</button>
+    <a class="btn-primary" href="Hospitals.html">
+      <span>🏥</span> <span data-i18n-key="homeBtnFind">Find Hospitals</span>
+    </a>
+    <a class="btn-secondary" href="about.html"><span data-i18n-key="homeBtnLearn">Learn More</span></a>
   </div>
 </section>
 
-<div class="stats-bar">
-  <div class="stat">
-    <div class="stat-num">487</div>
-    <div class="stat-label">Health Facilities</div>
-  </div>
-  <div class="stat">
-    <div class="stat-num">30</div>
-    <div class="stat-label">Districts Covered</div>
-  </div>
-  <div class="stat">
-    <div class="stat-num">5</div>
-    <div class="stat-label">Provinces</div>
-  </div>
-  <div class="stat">
-    <div class="stat-num">24/7</div>
-    <div class="stat-label">Emergency Access</div>
-  </div>
-</div>
-
-<div class="main-content">
-
-  <div class="sidebar">
-
-    <div class="card">
-      <div class="location-panel">
-        <div class="location-status">
-          <div class="pulse-dot" id="pulseDot"></div>
-          <div>
-            <div class="location-text" id="locationText">Location not detected</div>
-            <div class="location-sub" id="locationSub">Tap below to find nearby hospitals</div>
-          </div>
-        </div>
-        <button class="detect-btn" onclick="detectLocation()">
-          <span>📍</span> Detect My Location
-        </button>
-      </div>
-    </div>
-
-
-    <div class="card">
-      <div class="card-header"><span class="card-title">Search Radius</span></div>
-      <div class="radius-wrap">
-        <label>Nearby</label>
-        <input type="range" class="radius-slider" id="radiusSlider" min="1" max="50" value="20" oninput="updateRadius(this.value)">
-        <span class="radius-val" id="radiusVal">20 km</span>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header"><span class="card-title">Filter by Type</span></div>
-      <div class="filter-bar">
-        <button class="filter-pill active" data-type="all" onclick="filterHospitals(this, 'all')">All</button>
-        <button class="filter-pill" data-type="hospital" onclick="filterHospitals(this, 'hospital')">🏥 Hospitals</button>
-        <button class="filter-pill" data-type="clinic" onclick="filterHospitals(this, 'clinic')">🩺 Clinics</button>
-        <button class="filter-pill" data-type="emergency" onclick="filterHospitals(this, 'emergency')">🚨 Emergency</button>
-        <button class="filter-pill" data-type="health-center" onclick="filterHospitals(this, 'health-center')">💊 Health Centres</button>
-      </div>
-    </div>
-
-    <div class="card emergency-card" id="emergency">
-      <div class="card-header"><span class="card-title emergency-title">Emergency SOS</span></div>
-      <div class="location-panel">
-        <div class="emergency-content">Access urgent care faster by locating the nearest emergency unit and reaching ambulance services with one tap.</div>
-        <div class="emergency-actions">
-          <button class="emergency-btn" onclick="triggerEmergency()">🚨 Find Nearest Emergency</button>
-          <button class="emergency-call" onclick="window.location.href='tel:912'">📞 Call 912 Now</button>
-        </div>
-        <div class="emergency-note" id="emergencyStatus">Dial 912 for immediate ambulance dispatch if you are in danger.</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">Nearby Facilities</span>
-        <span style="font-size:12px;color:var(--gray-400);" id="countLabel">–</span>
-      </div>
-      <div class="search-wrap">
-        <span class="search-icon">🔍</span>
-        <input class="search-input" id="search" placeholder="Search hospital name or district…" oninput="renderList()">
-      </div>
-      <div class="hospital-list" id="hospitalList"></div>
-    </div>
-
+<section class="page-section">
+  <div class="about-content">
+    <h1 data-i18n-key="homeSection1Heading">Designed for every community</h1>
+    <p data-i18n-key="homeSection1Paragraph">Whether you are looking for urgent care, a specialist clinic, or reliable health information, NearCare helps you make confident choices with clear, local guidance.</p>
   </div>
 
-  <div class="map-container">
-    <div class="map-card">
-      <div class="map-toolbar">
-        <div class="map-title">
-          🗺️ Live Map View
-        </div>
-        <div class="map-controls">
-          <button class="map-btn" onclick="map.zoomIn()" title="Zoom in">+</button>
-          <button class="map-btn" onclick="map.zoomOut()" title="Zoom out">−</button>
-          <button class="map-btn" onclick="resetMapView()" title="Reset view">⌖</button>
-        </div>
-      </div>
-      <div id="map"></div>
-      <div class="detail-panel" id="detailPanel">
-        <div class="detail-header">
-          <div class="detail-name" id="detailName">–</div>
-          <button class="close-detail" onclick="closeDetail()">✕</button>
-        </div>
-        <div class="detail-grid" id="detailGrid"></div>
-        <div class="detail-actions">
-          <button class="dir-btn" id="dirBtn">🧭 Get Directions</button>
-          <button class="call-btn" id="callBtn">📞 Call Now</button>
-        </div>
-      </div>
+  <div class="about-grid">
+    <div class="feature">
+      <span class="feature-icon">📍</span>
+      <h3 data-i18n-key="homeFeature1Title">Local coverage</h3>
+      <p data-i18n-key="homeFeature1Text">Explore facilities across all provinces, from Kigali to remote districts, so every family can find care nearby.</p>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">⚡</span>
+      <h3 data-i18n-key="homeFeature2Title">Fast access</h3>
+      <p data-i18n-key="homeFeature2Text">Discover the most important services quickly, including emergency units, maternity centers, and specialist clinics.</p>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">🤝</span>
+      <h3 data-i18n-key="homeFeature3Title">Trusted guidance</h3>
+      <p data-i18n-key="homeFeature3Text">Use a platform built around Rwanda's health network and data from trusted partners like the Ministry of Health.</p>
     </div>
   </div>
+</section>
 
-</div>
+<section class="page-section" style="background: linear-gradient(160deg, #f5faf7 0%, #ffffff 100%);">
+  <div class="about-content">
+    <h1 data-i18n-key="homeHowHeading">How NearCare works</h1>
+    <p data-i18n-key="homeHowParagraph">Start with any district, choose the right type of service, and reach out for care with a single click.</p>
+  </div>
+
+  <div class="about-grid">
+    <div class="feature">
+      <span class="feature-icon">🔎</span>
+      <h3 data-i18n-key="homeHowSearchTitle">Search by need</h3>
+      <p data-i18n-key="homeHowSearchText">Find hospitals, clinics, pharmacies, and emergency centers using clear service categories.</p>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">📊</span>
+      <h3 data-i18n-key="homeHowReviewTitle">Review availability</h3>
+      <p data-i18n-key="homeHowReviewText">See facility details such as opening hours, distance, and service highlights before you travel.</p>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">📞</span>
+      <h3 data-i18n-key="homeHowConnectTitle">Connect quickly</h3>
+      <p data-i18n-key="homeHowConnectText">Use built-in contact links to call ahead or get directions to the facility you need.</p>
+    </div>
+  </div>
+</section>
+
+<section class="page-section">
+  <div class="about-content">
+    <h1 data-i18n-key="homeSpotlightHeading">Rwanda health spotlight</h1>
+    <p data-i18n-key="homeSpotlightParagraph">Explore what matters most for your area: emergency readiness, empathetic care, and service coverage that reaches every region.</p>
+  </div>
+
+  <div class="about-grid">
+    <div class="feature">
+      <span class="feature-icon">🌍</span>
+      <h3 data-i18n-key="homeSpot1Title">Nationwide reach</h3>
+      <p data-i18n-key="homeSpot1Text">All 30 districts are included so you can search confidently from the city center or rural communities alike.</p>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">🏨</span>
+      <h3 data-i18n-key="homeSpot2Title">Complete facility data</h3>
+      <p data-i18n-key="homeSpot2Text">Find core details about services, opening status, phone contacts, and nearby emergency teams.</p>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">💡</span>
+      <h3 data-i18n-key="homeSpot3Title">Simple support</h3>
+      <p data-i18n-key="homeSpot3Text">Whether you need fast help or general guidance, NearCare keeps the experience easy and human-centered.</p>
+    </div>
+  </div>
+</section>
+
+<section class="page-section" style="text-align:center; background: linear-gradient(160deg, #eaf3de 0%, #e1f5ee 100%);">
+  <div class="about-content">
+    <h1 data-i18n-key="homeReadyHeading">Ready to find care?</h1>
+    <p data-i18n-key="homeReadyParagraph">Move from discovery to action with our dedicated hospital finder, emergency contacts, and community health overview.</p>
+    <div class="app-downloads">
+      <a class="download-btn" href="Hospitals.html" data-i18n-key="homeExploreBtn">Explore Healthcare Facilities</a>
+      <a class="download-btn" href="about.html" data-i18n-key="homeAboutBtn">About Rwanda Health</a>
+    </div>
+    <p class="coming-soon" data-i18n-key="homeComingSoon">Coming soon: mobile-ready access for faster health support on the go.</p>
+  </div>
+</section>
 
 <footer>
-  <p><strong>NearCare Rwanda</strong> — Connecting communities to quality healthcare since 2026.</p>
-  <p style="margin-top:4px">Data sourced from Rwanda Ministry of Health · Kigali, Rwanda</p>
+  <p><strong>NearCare Rwanda</strong> — <span data-i18n-key="footerLine1">Connecting communities to quality healthcare since 2026.</span></p>
+  <p style="margin-top:4px" data-i18n-key="footerLine2">Data sourced from Rwanda Ministry of Health · Kigali, Rwanda</p>
 </footer>
 
-<script src="script.js"></script>
-
-<button class="emergency-floating" onclick="window.location.href='emergency.html'">🚨 Emergency Help</button>
-
+<script src="lang.js" defer></script>
 </body>
 </html>

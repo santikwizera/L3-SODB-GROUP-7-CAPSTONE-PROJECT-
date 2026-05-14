@@ -168,11 +168,11 @@
   }
 </style>
 </head>
-<body>
+<body data-page="hospitals" data-title-key="titleHospitals">
 
 <div class="loader-overlay" id="loader">
   <div class="spinner"></div>
-  <div class="loader-text" id="loaderText">Loading healthcare finder…</div>
+  <div class="loader-text" id="loaderText" data-i18n-key="loaderText">Loading healthcare finder…</div>
 </div>
 
 <nav>
@@ -181,75 +181,102 @@
     <span class="logo-text">Near<span>Care</span></span>
   </div>
   <ul class="nav-links">
+<<<<<<< HEAD
     <li><a href="home.html">Home</a></li>
     <li><a href="Hospitals.html" class="active">Find Hospitals</a></li>
     <li><a href="emergency.html">Emergency</a></li>
     <li><a href="about.html">About Rwanda Health</a></li>
     <li><a href="FIXED DEMO.html" class="nav-cta">Get the App</a></li>
+=======
+    <li><a href="home.html" data-i18n-key="navHome">Home</a></li>
+    <li><a href="Hospitals.html" class="active" data-i18n-key="navHospitals">Find Hospitals</a></li>
+    <li><a href="emergency.html" data-i18n-key="navEmergency">Emergency</a></li>
+    <li><a href="about.html" data-i18n-key="navAbout">About Rwanda Health</a></li>
+    <li><a href="#" class="nav-cta" data-i18n-key="navApp">Get the App</a></li>
+    <li class="lang-switcher">
+      <select class="lang-selector" onchange="switchLanguage(this.value)" aria-label="Select language">
+        <option value="en">EN - English</option>
+        <option value="fr">FR - Français</option>
+        <option value="ar">AR - العربية</option>
+        <option value="es">ES - Español</option>
+        <option value="pt">PT - Português</option>
+        <option value="de">DE - Deutsch</option>
+        <option value="it">IT - Italiano</option>
+        <option value="ru">RU - Русский</option>
+        <option value="sw">SW - Kiswahili</option>
+        <option value="am">AM - አማርኛ</option>
+        <option value="ha">HA - Hausa</option>
+        <option value="yo">YO - Yoruba</option>
+        <option value="af">AF - Afrikaans</option>
+        <option value="nl">NL - Nederlands</option>
+        <option value="zu">ZU - isiZulu</option>
+        <option value="el">EL - Ελληνικά</option>
+      </select>
+>>>>>>> 4aad849 (fix languages)
   </ul>
 </nav>
 
 <section class="hero">
-  <div class="hero-badge">🇷🇼 Rwanda Healthcare Network</div>
-  <h1>Find <em>any healthcare</em> service<br>near you in Rwanda</h1>
-  <p>Locate hospitals, clinics, dentists, pharmacies, and specialized care facilities across all 30 districts.</p>
+  <div class="hero-badge" data-i18n-key="hospitalsHeroBadge">🇷🇼 Rwanda Healthcare Network</div>
+  <h1 data-i18n-key="hospitalsHeroHeading" data-i18n-html>Find <em>any healthcare</em> service<br>near you in Rwanda</h1>
+  <p data-i18n-key="hospitalsHeroParagraph">Locate hospitals, clinics, dentists, pharmacies, and specialized care facilities across all 30 districts.</p>
   <div class="hero-actions">
     <button class="btn-primary" onclick="detectLocation()">
-      <span>📍</span> Use My Location
+      <span></span> <span data-i18n-key="hospitalsBtnLocation">Use My Location</span>
     </button>
-    <button class="btn-secondary" onclick="document.getElementById('search').focus()">Browse All</button>
+    <button class="btn-secondary" onclick="document.getElementById('search').focus()"><span data-i18n-key="hospitalsBtnBrowse">Browse All</span></button>
   </div>
 </section>
 
 <!-- Healthcare Categories Section -->
 <section class="category-section">
-  <h2 class="category-title">Healthcare Services</h2>
+  <h2 class="category-title" data-i18n-key="categoryHeading">Healthcare Services</h2>
   
   <div class="category-tabs">
     <button class="category-btn active" onclick="filterByCategory('all')">
-      <span>🏥</span> All Services
+      <span></span> <span data-i18n-key="categoryAll">All Services</span>
     </button>
     <button class="category-btn" onclick="filterByCategory('hospital')">
-      <span>🏥</span> General Hospitals
+      <span></span> <span data-i18n-key="categoryHospital">General Hospitals</span>
     </button>
     <button class="category-btn" onclick="filterByCategory('clinic')">
-      <span>🩺</span> Clinics
+      <span></span> <span data-i18n-key="categoryClinic">Clinics</span>
     </button>
     <button class="category-btn" onclick="filterByCategory('dentist')">
-      <span>🦷</span> Dentists
+      <span></span> <span data-i18n-key="categoryDentist">Dentists</span>
     </button>
     <button class="category-btn" onclick="filterByCategory('pharmacy')">
-      <span>💊</span> Pharmacies
+      <span></span> <span data-i18n-key="categoryPharmacy">Pharmacies</span>
     </button>
     <button class="category-btn" onclick="filterByCategory('eye-care')">
-      <span>👁️</span> Eye Care
+      <span></span> <span data-i18n-key="categoryEyeCare">Eye Care</span>
     </button>
     <button class="category-btn" onclick="filterByCategory('maternity')">
-      <span>🤰</span> Maternity
+      <span></span> <span data-i18n-key="categoryMaternity">Maternity</span>
     </button>
     <button class="category-btn" onclick="filterByCategory('heart-hospital')">
-      <span>❤️</span> Heart Hospital
+      <span></span> <span data-i18n-key="categoryHeartHospital">Heart Hospital</span>
     </button>
     <button class="category-btn" onclick="filterByCategory('children-hospital')">
-      <span>👶</span> Children's Hospital
+      <span></span> <span data-i18n-key="categoryChildrenHospital">Children's Hospital</span>
     </button>
     <button class="category-btn" onclick="filterByCategory('emergency')">
-      <span>🚨</span> Emergency
+      <span></span> <span data-i18n-key="categoryEmergency">Emergency</span>
     </button>
   </div>
 
   <div class="facilities-summary">
     <div class="summary-stat">
       <div class="summary-number" id="totalFacilities">0</div>
-      <div class="summary-label">Total Found</div>
+      <div class="summary-label" data-i18n-key="summaryTotal">Total Found</div>
     </div>
     <div class="summary-stat">
       <div class="summary-number" id="nearbyFacilities">0</div>
-      <div class="summary-label">Nearby (Within Radius)</div>
+      <div class="summary-label" data-i18n-key="summaryNearby">Nearby (Within Radius)</div>
     </div>
     <div class="summary-stat">
       <div class="summary-number" id="closestDistance">—</div>
-      <div class="summary-label">Closest Distance</div>
+      <div class="summary-label" data-i18n-key="summaryClosest">Closest Distance</div>
     </div>
   </div>
 </section>
@@ -263,20 +290,20 @@
         <div class="location-status">
           <div class="pulse-dot" id="pulseDot"></div>
           <div>
-            <div class="location-text" id="locationText">Location not detected</div>
-            <div class="location-sub" id="locationSub">Tap below to find nearby services</div>
+            <div class="location-text" id="locationText" data-i18n-key="locationNotDetected">Location not detected</div>
+            <div class="location-sub" id="locationSub" data-i18n-key="locationSub">Tap below to find nearby services</div>
           </div>
         </div>
         <button class="detect-btn" onclick="detectLocation()">
-          <span>📍</span> Detect My Location
+          <span></span> <span data-i18n-key="hospitalsBtnDetect">Detect My Location</span>
         </button>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-header"><span class="card-title">Search Radius</span></div>
+      <div class="card-header"><span class="card-title" data-i18n-key="searchRadius">Search Radius</span></div>
       <div class="radius-wrap">
-        <label>Nearby</label>
+        <label data-i18n-key="nearbyLabel">Nearby</label>
         <input type="range" class="radius-slider" id="radiusSlider" min="1" max="50" value="20" oninput="updateRadius(this.value)">
         <span class="radius-val" id="radiusVal">20 km</span>
       </div>
@@ -284,12 +311,12 @@
 
     <div class="card">
       <div class="card-header">
-        <span class="card-title">Healthcare Services</span>
+        <span class="card-title" data-i18n-key="hospitalsServiceTitle">Healthcare Services</span>
         <span style="font-size:12px;color:var(--gray-400);" id="countLabel">–</span>
       </div>
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
-        <input class="search-input" id="search" placeholder="Search facility name or district…" oninput="renderList()">
+        <input class="search-input" id="search" data-i18n-placeholder="searchPlaceholder" placeholder="Search facility name or district…" oninput="renderList()">
       </div>
       <div class="hospital-list" id="hospitalList"></div>
     </div>
@@ -299,7 +326,7 @@
   <div class="map-container">
     <div class="map-card">
       <div class="map-toolbar">
-        <div class="map-title">
+        <div class="map-title" data-i18n-key="mapTitle">
           🗺️ Healthcare Facilities Map
         </div>
         <div class="map-controls">
@@ -316,8 +343,8 @@
         </div>
         <div class="detail-grid" id="detailGrid"></div>
         <div class="detail-actions">
-          <button class="dir-btn" id="dirBtn">🧭 Get Directions</button>
-          <button class="call-btn" id="callBtn">📞 Call Now</button>
+          <button class="dir-btn" id="dirBtn" data-i18n-key="dirButton">🧭 Get Directions</button>
+          <button class="call-btn" id="callBtn"><span class="call-label" data-i18n-key="callButton">📞 Call Now</span><span id="callPhone"></span></button>
         </div>
       </div>
     </div>
@@ -326,8 +353,8 @@
 </div>
 
 <footer>
-  <p><strong>NearCare Rwanda</strong> — Your Complete Healthcare Finder since 2026.</p>
-  <p style="margin-top:4px">Data sourced from Rwanda Ministry of Health · Kigali, Rwanda</p>
+  <p><strong>NearCare Rwanda</strong> — <span data-i18n-key="footerLine1">Your Complete Healthcare Finder since 2026.</span></p>
+  <p style="margin-top:4px" data-i18n-key="footerLine2">Data sourced from Rwanda Ministry of Health · Kigali, Rwanda</p>
 </footer>
 
 <script>
@@ -556,7 +583,7 @@ function renderList() {
   document.getElementById('countLabel').textContent = items.length + ' found';
 
   if (!items.length) {
-    list.innerHTML = `<div class="empty-state"><div class="icon">🔎</div><p>No facilities found. Try adjusting filters or radius.</p></div>`;
+    list.innerHTML = `<div class="empty-state"><div class="icon">🔎</div><p>${window.translate ? window.translate('noFacilitiesMessage') : 'No facilities found. Try adjusting filters or radius.'}</p></div>`;
     return;
   }
 
@@ -572,7 +599,7 @@ function renderList() {
         <div class="hosp-location">📍 ${f.district}</div>
         <div class="hosp-meta">
           <span class="badge ${f.open==='24h'?'badge-24h':'badge-open'}">
-            ${f.open==='24h'?'24/7':'Open'}
+            ${window.translate ? (f.open==='24h' ? window.translate('status24h') : window.translate('statusOpen')) : (f.open==='24h' ? '24/7' : 'Open')}
           </span>
           <span class="stars">${starStr(f.rating)}</span>
           <span class="hosp-dist">${userLocated?f.dist.toFixed(1)+' km':'–'}</span>
@@ -600,23 +627,23 @@ function selectFacility(id) {
 
   document.getElementById('detailGrid').innerHTML = `
     <div class="detail-field">
-      <div class="detail-field-label">District</div>
+      <div class="detail-field-label">${window.translate ? window.translate('detailDistrict') : 'District'}</div>
       <div class="detail-field-value">${f.district}</div>
     </div>
     <div class="detail-field">
-      <div class="detail-field-label">Distance</div>
+      <div class="detail-field-label">${window.translate ? window.translate('detailDistance') : 'Distance'}</div>
       <div class="detail-field-value">${dist}</div>
     </div>
     <div class="detail-field">
-      <div class="detail-field-label">Hours</div>
-      <div class="detail-field-value">${f.open==='24h'?'Open 24/7':'Currently Open'}</div>
+      <div class="detail-field-label">${window.translate ? window.translate('detailHours') : 'Hours'}</div>
+      <div class="detail-field-value">${f.open==='24h' ? (window.translate ? window.translate('status24hLong') : 'Open 24/7') : (window.translate ? window.translate('statusOpenLong') : 'Currently Open')}</div>
     </div>
     <div class="detail-field">
-      <div class="detail-field-label">Rating</div>
+      <div class="detail-field-label">${window.translate ? window.translate('detailRating') : 'Rating'}</div>
       <div class="detail-field-value" style="color:#F0A500">${starStr(f.rating)} (${f.rating})</div>
     </div>
     <div class="detail-field" style="grid-column:1/-1">
-      <div class="detail-field-label">Services</div>
+      <div class="detail-field-label">${window.translate ? window.translate('detailServices') : 'Services'}</div>
       <div class="detail-field-value" style="font-weight:400;font-size:12px">${f.services}</div>
     </div>
   `;
@@ -627,7 +654,8 @@ function selectFacility(id) {
   document.getElementById('callBtn').onclick = () => {
     window.location.href = 'tel:' + f.phone.replace(/\s/g,'');
   };
-  document.getElementById('callBtn').innerHTML = `📞 ${f.phone}`;
+  document.querySelector('#callBtn .call-label').textContent = window.translate ? window.translate('callButton') : '📞 Call Now';
+  document.getElementById('callPhone').textContent = ` ${f.phone}`;
 
   panel.classList.add('visible');
 
@@ -655,6 +683,7 @@ window.addEventListener('load', () => {
 });
 
 </script>
+<script src="lang.js" defer></script>
 
 </body>
 </html>
