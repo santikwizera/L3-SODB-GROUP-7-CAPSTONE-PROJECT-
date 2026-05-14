@@ -144,12 +144,13 @@ nav {
 .nav-cta {
   background: var(--green-400);
   color: white !important;
-  padding: 8px 20px;
-  border-radius: 8px;
-  transition: background 0.2s !important;
+  padding: 10px 22px;
+  border-radius: 10px;
+  transition: background 0.2s, transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 12px 24px rgba(52,84,10,0.08);
 }
 
-.nav-cta:hover { background: var(--green-600) !important; color: white !important; }
+.nav-cta:hover { background: var(--green-600) !important; color: white !important; transform: translateY(-1px); box-shadow: 0 16px 32px rgba(52,84,10,0.16); }
 
 .hero {
   padding-top: 64px;
@@ -162,6 +163,7 @@ nav {
   padding-right: 1rem;
   position: relative;
   overflow: hidden;
+  animation: floatIn 1s ease-out both;
 }
 
 .hero::before {
@@ -182,6 +184,50 @@ nav {
   border-radius: 50%;
   background: rgba(99,153,34,0.06);
   pointer-events: none;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at top left, rgba(237,250,240,0.35), transparent 28%), radial-gradient(circle at bottom right, rgba(220,242,234,0.35), transparent 20%);
+  pointer-events: none;
+  z-index: -1;
+  animation: breeze 18s ease-in-out infinite;
+}
+
+.hero-badge {
+  animation: popIn 0.8s ease-out both;
+}
+
+.hero h1,
+.hero p,
+.hero-actions,
+.card,
+footer {
+  animation: fadeInUp 0.7s ease-out both;
+}
+
+.card { animation-delay: 0.15s; }
+
+@keyframes floatIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes breeze {
+  0%,100% { transform: translate(0,0); }
+  50% { transform: translate(-10px, 12px); }
 }
 
 .hero-badge {
