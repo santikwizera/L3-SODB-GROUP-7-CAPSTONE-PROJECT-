@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>NearCare Rwanda</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root {
+    --green-400: #639922;
+    --green-600: #4a7a1a;
+    --green-800: #2d4d0e;
+    --green-50: #f0f7f0;
+    --green-100: #e0efe0;
+    --red-500: #ef4444;
+    --red-600: #dc2626;
+    --orange-500: #f59e0b;
+    --blue-500: #3b82f6;
+    --gray-500: #6b7280;
+    --gray-900: #111827;
+    --white: #ffffff;
+    --safe-bottom: env(safe-area-inset-bottom, 16px);
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .phone-frame {
+    width: 100%;
+    max-width: 430px;
+    height: 100vh;
+    max-height: 932px;
+    background: var(--white);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 0 2px #333, 0 0 0 4px #555, 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  @media (min-width: 431px) {
+    .phone-frame {
+      border-radius: 40px;
+      height: 90vh;
+    }
+  }
+
+  .status-bar {
+    background: var(--green-800);
+    color: white;
+    padding: 8px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .screens-container {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Language Screen */
+  .language-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem;
+    min-height: 100%;
+    background: linear-gradient(180deg, #ffffff 0%, #f0faf3 100%);
+    text-align: center;
+  }
+
+  .app-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .language-screen h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.8rem;
+    color: var(--green-800);
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    color: var(--gray-500);
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+  }
+
+  .language-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .lang-btn {
+    background: white;
+    border: 2px solid #e0efe0;
+    border-radius: 16px;
+    padding: 20px 15px;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--green-800);
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Sora', sans-serif;
+  }
+
+  .lang-btn:active {
+    background: var(--green-400);
+    color: white;
+    border-color: var(--green-400);
+    transform: scale(0.95);
+  }
+
+  /* Main App Screens */
+  .app-screen {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .app-screen.active {
+    display: flex;
+  }
+
+  /* Header */
+  .app-header {
+    background: linear-gradient(135deg, var(--green-600), #3d6b14);
+    color: white;
+    padding: 1rem 1.2rem;
+    flex-shrink: 0;
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .header-logo {
+    font-size: 1.3rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .lang-badge {
+    background: rgba(255,255,255,0.2);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+
+  /* Find Screen */
+  .location-bar {
+    background: white;
+    border-radius: 25px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #1a3b2f;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: #ccc;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .pulse-dot.active {
+    background: var(--green-400);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(99,153,34,0.7); }
+    70% { box-shadow: 0 0 0 8px rgba(99,153,34,0); }
+    100% { box-shadow: 0 0 0 0 rgba(99,153,34,0); }
+  }
+
+  .quick-stats {
+    display: flex;
+    gap: 8px;
+    padding: 12px 1.2rem;
+  }
+
+  .stat-chip {
+    flex: 1;
+    background: var(--green-50);
+    border-radius: 16px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--green-800);
+    border: 1px solid var(--green-100);
+  }
+
+  .category-scroll {
+    padding: 0 1.2rem 8px;
+  }
+
+  .category-chips {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .category-chips::-webkit-scrollbar {
+    display: none;
+  }
+
+  .cat-chip {
+    background: white;
+    border: 1.5px solid var(--green-100);
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--gray-500);
+    font-family: 'Sora', sans-serif;
+  }
+
+  .cat-chip:active, .cat-chip.active {
+    background: var(--green-400);
+    color: white;
+    border-color: var(--green-400);
+  }
+
+  .map-wrapper {
+    margin: 0 1rem;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 2px solid var(--green-100);
+    height: 180px;
+    flex-shrink: 0;
+  }
+
+  #map {
+    height: 100%;
+    width: 100%;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 1.2rem 6px;
+  }
+
+  .section-title {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--green-800);
+  }
+
+  .section-badge {
+    background: var(--green-50);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    color: var(--green-600);
+    margin-left: 6px;
+  }
+
+  .facilities-list {
+    padding: 0 1rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .facility-card {
+    background: white;
+    border-radius: 16px;
+    padding: 14px;
+    border: 1.5px solid #f0f7f0;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .facility-card:active {
+    background: var(--green-50);
+    border-color: var(--green-400);
+    transform: scale(0.98);
+  }
+
+  .facility-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--green-50);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .facility-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .facility-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--gray-900);
+  }
+
+  .facility-district {
+    font-size: 0.75rem;
+    color: var(--gray-500);
+    margin: 2px 0;
+  }
+
+  .facility-meta {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+    font-size: 0.7rem;
+  }
+
+  .meta-badge {
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+
+  .badge-open { background: #e8f5e9; color: #2d5f2e; }
+  .badge-24h { background: #e3f2fd; color: #1565c0; }
+  .badge-distance { background: var(--green-50); color: var(--green-600); }
+  .stars { color: #f0a500; font-size: 0.75rem; }
+
+  .book-btn {
+    background: var(--green-400);
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    font-family: 'Sora', sans-serif;
+    margin-top: 6px;
+  }
+
+  /* Map Full Screen */
+  .map-fullscreen {
+    flex: 1;
+    position: relative;
+  }
+
+  #mapFull {
+    width: 100%;
+    height: 100%;
+  }
+
+  .map-legend {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    background: white;
+    border-radius: 16px;
+    padding: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    z-index: 1000;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    background: var(--green-50);
+    padding: 4px 8px;
+    border-radius: 8px;
+  }
+
+  /* Emergency Screen */
+  .emergency-screen {
+    background: linear-gradient(180deg, #fef2f2 0%, #fff 100%);
+  }
+
+  .emergency-hero {
+    background: linear-gradient(135deg, var(--red-600), #b91c1c);
+    color: white;
+    padding: 2rem 1.5rem;
+    text-align: center;
+  }
+
+  .emergency-hero h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .emergency-number {
+    font-size: 3rem;
+    font-weight: 700;
+    margin: 1rem 0;
+    font-family: 'DM Serif Display', serif;
+  }
+
+  .emergency-btn {
+    background: white;
+    color: var(--red-600);
+    border: none;
+    padding: 16px 32px;
+    border-radius: 30px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Sora', sans-serif;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s;
+  }
+
+  .emergency-btn:active {
+    transform: scale(0.95);
+    background: #fee2e2;
+  }
+
+  .emergency-info {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .emergency-card {
+    background: white;
+    border-radius: 16px;
+    padding: 16px;
+    border: 2px solid #fee2e2;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .emergency-card-icon {
+    width: 50px;
+    height: 50px;
+    background: #fef2f2;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+  }
+
+  .emergency-card-info h4 {
+    font-size: 0.9rem;
+    color: var(--gray-900);
+  }
+
+  .emergency-card-info p {
+    font-size: 0.75rem;
+    color: var(--gray-500);
+  }
+
+  /* Appointments Screen */
+  .appointments-screen {
+    background: #fafafa;
+  }
+
+  .appointments-header {
+    background: linear-gradient(135deg, var(--blue-500), #2563eb);
+    color: white;
+    padding: 1.5rem 1.2rem;
+  }
+
+  .appointments-list {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .appointment-card {
+    background: white;
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .appointment-date {
+    width: 55px;
+    height: 55px;
+    background: var(--green-50);
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .appointment-date .day {
+    font-size: 1.3rem;
+    color: var(--green-600);
+  }
+
+  .appointment-date .month {
+    font-size: 0.65rem;
+    color: var(--gray-500);
+    text-transform: uppercase;
+  }
+
+  .appointment-info {
+    flex: 1;
+  }
+
+  .appointment-info h4 {
+    font-size: 0.9rem;
+    color: var(--gray-900);
+  }
+
+  .appointment-info p {
+    font-size: 0.75rem;
+    color: var(--gray-500);
+    margin: 2px 0;
+  }
+
+  .appointment-status {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+
+  .status-confirmed { background: #d1fae5; color: #065f46; }
+  .status-pending { background: #fef3c7; color: #92400e; }
+  .status-completed { background: #e0e7ff; color: #3730a3; }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+  }
+
+  .empty-state .icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+  }
+
+  .empty-state h3 {
+    font-family: 'DM Serif Display', serif;
+    color: var(--gray-900);
+    margin-bottom: 0.5rem;
+  }
+
+  .empty-state p {
+    color: var(--gray-500);
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .empty-state .btn-primary {
+    background: var(--green-400);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Sora', sans-serif;
+  }
+
+  /* Bottom Navigation */
+  .bottom-nav {
+    background: white;
+    border-top: 1px solid #e8e8e8;
+    padding: 8px 1rem calc(8px + var(--safe-bottom));
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    color: var(--gray-500);
+    font-size: 0.7rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    padding: 4px 12px;
+    border-radius: 12px;
+    border: none;
+    background: none;
+    font-family: 'Sora', sans-serif;
+  }
+
+  .nav-item:active {
+    background: var(--green-50);
+  }
+
+  .nav-item.active {
+    color: var(--green-400);
+  }
+
+  .nav-item i {
+    font-size: 1.3rem;
+  }
+
+  .nav-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background: var(--red-500);
+    color: white;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    font-size: 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+  }
+
+  /* Detail Sheet */
+  .overlay-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    z-index: 999;
+    display: none;
+  }
+
+  .overlay-bg.visible {
+    display: block;
+  }
+
+  .detail-sheet {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(100%);
+    width: 100%;
+    max-width: 430px;
+    background: white;
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
+    z-index: 1000;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 1.5rem;
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+
+  .detail-sheet.visible {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .sheet-handle {
+    width: 40px;
+    height: 4px;
+    background: #ddd;
+    border-radius: 2px;
+    margin: 0 auto 1rem;
+  }
+
+  .sheet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .sheet-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--gray-900);
+  }
+
+  .sheet-close {
+    background: #f0f0f0;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  .sheet-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 1rem;
+  }
+
+  .sheet-field-label {
+    font-size: 0.7rem;
+    color: var(--gray-500);
+    text-transform: uppercase;
+  }
+
+  .sheet-field-value {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--gray-900);
+  }
+
+  .sheet-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .sheet-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 25px;
+    border: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: 'Sora', sans-serif;
+  }
+
+  .btn-directions { background: var(--green-50); color: var(--green-600); }
+  .btn-book { background: var(--green-400); color: white; }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 2000;
+  }
+
+  .modal-sheet {
+    background: white;
+    width: 100%;
+    max-width: 430px;
+    border-radius: 24px 24px 0 0;
+    padding: 2rem 1.5rem;
+    animation: slideUp 0.3s;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  .modal-sheet h3 {
+    font-family: 'DM Serif Display', serif;
+    color: var(--green-800);
+    margin-bottom: 1rem;
+  }
+
+  .modal-sheet input, .modal-sheet select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0efe0;
+    border-radius: 12px;
+    margin: 6px 0;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.9rem;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 1rem;
+  }
+
+  .btn-cancel {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid #e0efe0;
+    background: white;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Sora', sans-serif;
+  }
+
+  .btn-confirm {
+    flex: 1;
+    padding: 12px;
+    background: var(--green-400);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Sora', sans-serif;
+  }
+
+  .toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #d4edda;
+    color: #155724;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    z-index: 3000;
+    display: none;
+    animation: fadeIn 0.3s;
+    max-width: 90%;
+    text-align: center;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
+
+  .nav-item-wrapper {
+    position: relative;
+  }
+</style>
+</head>
+<body>
+
+<div class="phone-frame">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="status-icons">
+      <span>📶</span>
+      <span>📶</span>
+      <span>🔋</span>
+    </div>
+  </div>
+
+  <!-- Screens -->
+  <div class="screens-container" id="screensContainer">
+    
+    <!-- Language Screen -->
+    <div class="language-screen" id="languageScreen">
+      <div class="app-icon">🏥</div>
+      <h2>Near<span style="color:var(--green-400);">Care</span></h2>
+      <p class="subtitle" id="langSubtitle">Your healthcare finder in Rwanda</p>
+      <div class="language-grid">
+        <button class="lang-btn" data-lang="en">
+          <span style="font-size:2rem;">🇺🇸</span> English
+        </button>
+        <button class="lang-btn" data-lang="fr">
+          <span style="font-size:2rem;">🇫🇷</span> Français
+        </button>
+        <button class="lang-btn" data-lang="rw">
+          <span style="font-size:2rem;">🇷🇼</span> Kinyarwanda
+        </button>
+        <button class="lang-btn" data-lang="sw">
+          <span style="font-size:2rem;">🇹🇿</span> Kiswahili
+        </button>
+      </div>
+    </div>
+
+    <!-- FIND SCREEN -->
+    <div class="app-screen" id="findScreen">
+      <div class="app-header">
+        <div class="header-top">
+          <div class="header-logo">🏥 Near<span>Care</span></div>
+          <div class="lang-badge" id="langBadge" onclick="showLanguageScreen()">🌐 <span id="langLabel">EN</span></div>
+        </div>
+        <div class="location-bar" onclick="detectLocation()">
+          <div class="pulse-dot" id="pulseDot"></div>
+          <span id="locationText" style="flex:1; font-size:0.8rem;">Tap to detect location</span>
+          <i class="fas fa-location-arrow" style="color:var(--green-400);"></i>
+        </div>
+      </div>
+
+      <div class="quick-stats">
+        <div class="stat-chip">
+          <span>📍</span>
+          <span><strong id="nearbyCount">24</strong> <span id="nearbyLabel">nearby</span></span>
+        </div>
+        <div class="stat-chip">
+          <span>🩺</span>
+          <span><strong id="availableCount">18</strong> <span id="availableLabel">available</span></span>
+        </div>
+      </div>
+
+      <div class="category-scroll">
+        <div class="category-chips" id="categoryChips">
+          <button class="cat-chip active" data-cat="all">🏥 All</button>
+          <button class="cat-chip" data-cat="hospital">🏥 Hospitals</button>
+          <button class="cat-chip" data-cat="clinic">🩺 Clinics</button>
+          <button class="cat-chip" data-cat="dentist">🦷 Dentists</button>
+          <button class="cat-chip" data-cat="pharmacy">💊 Pharmacy</button>
+          <button class="cat-chip" data-cat="eye-care">👁️ Eye</button>
+          <button class="cat-chip" data-cat="maternity">🤰 Maternity</button>
+          <button class="cat-chip" data-cat="heart-hospital">❤️ Heart</button>
+          <button class="cat-chip" data-cat="children-hospital">👶 Children</button>
+          <button class="cat-chip" data-cat="emergency">🚨 Emergency</button>
+        </div>
+      </div>
+
+      <div class="map-wrapper">
+        <div id="map"></div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">
+          <i class="fas fa-hospital"></i> <span id="listTitle">Nearby Facilities</span>
+          <span class="section-badge" id="listCount">24</span>
+        </div>
+        <input type="range" id="radiusSlider" min="1" max="50" value="20" oninput="updateRadius(this.value)" style="width:80px; accent-color:var(--green-400);">
+      </div>
+
+      <div class="facilities-list" id="facilitiesList"></div>
+    </div>
+
+    <!-- MAP SCREEN -->
+    <div class="app-screen" id="mapScreen">
+      <div class="app-header">
+        <div class="header-top">
+          <div class="header-logo">🗺️ <span id="mapTitle">Healthcare Map</span></div>
+          <div class="lang-badge" onclick="showLanguageScreen()">🌐</div>
+        </div>
+      </div>
+      <div class="map-fullscreen">
+        <div id="mapFull"></div>
+        <div class="map-legend">
+          <div class="legend-item">🏥 Hospitals</div>
+          <div class="legend-item">🩺 Clinics</div>
+          <div class="legend-item">🦷 Dentists</div>
+          <div class="legend-item">💊 Pharmacy</div>
+          <div class="legend-item">🚨 Emergency</div>
+          <div class="legend-item" style="background:var(--green-400);color:white;">📍 You</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EMERGENCY SCREEN -->
+    <div class="app-screen emergency-screen" id="emergencyScreen">
+      <div class="emergency-hero">
+        <h2 id="emergencyTitle">🚨 Emergency Services</h2>
+        <p id="emergencySubtitle">24/7 Emergency Response in Rwanda</p>
+        <div class="emergency-number">912</div>
+        <button class="emergency-btn" onclick="window.location.href='tel:912'">
+          <i class="fas fa-phone"></i> <span id="callEmergency">Call Emergency Now</span>
+        </button>
+      </div>
+      <div class="emergency-info">
+        <div class="emergency-card">
+          <div class="emergency-card-icon">🚑</div>
+          <div class="emergency-card-info">
+            <h4 id="ambulanceTitle">Ambulance Services</h4>
+            <p id="ambulanceDesc">SAMU Rwanda: Call 912 for immediate ambulance dispatch</p>
+          </div>
+        </div>
+        <div class="emergency-card">
+          <div class="emergency-card-icon">🏥</div>
+          <div class="emergency-card-info">
+            <h4 id="erTitle">Emergency Rooms</h4>
+            <p id="erDesc">CHUK, King Faisal, and Military Hospital have 24/7 ER</p>
+          </div>
+        </div>
+        <div class="emergency-card">
+          <div class="emergency-card-icon">🩸</div>
+          <div class="emergency-card-info">
+            <h4 id="bloodTitle">Blood Bank</h4>
+            <p id="bloodDesc">National Blood Transfusion Centre: +250 788 304 000</p>
+          </div>
+        </div>
+        <div class="emergency-card">
+          <div class="emergency-card-icon">🔥</div>
+          <div class="emergency-card-info">
+            <h4 id="fireTitle">Fire & Rescue</h4>
+            <p id="fireDesc">Fire Brigade: Call 111 for fire emergencies</p>
+          </div>
+        </div>
+        <div class="emergency-card">
+          <div class="emergency-card-icon">👮</div>
+          <div class="emergency-card-info">
+            <h4 id="policeTitle">Police Emergency</h4>
+            <p id="policeDesc">Rwanda National Police: Call 112 for police assistance</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- APPOINTMENTS SCREEN -->
+    <div class="app-screen appointments-screen" id="appointmentsScreen">
+      <div class="appointments-header">
+        <h2 id="apptsTitle">📅 My Appointments</h2>
+        <p style="opacity:0.9; font-size:0.85rem;" id="apptsSubtitle">Manage your upcoming bookings</p>
+      </div>
+      <div class="appointments-list" id="appointmentsList">
+        <!-- Dynamically filled -->
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav" id="bottomNav" style="display:none;">
+    <button class="nav-item active" data-screen="findScreen">
+      <i class="fas fa-search-location"></i>
+      <span id="navFind">Find</span>
+    </button>
+    <button class="nav-item" data-screen="mapScreen">
+      <i class="fas fa-map-marked-alt"></i>
+      <span id="navMap">Map</span>
+    </button>
+    <button class="nav-item" data-screen="emergencyScreen">
+      <div class="nav-item-wrapper">
+        <i class="fas fa-phone-alt" style="color:var(--red-500);"></i>
+      </div>
+      <span id="navEmergency" style="color:var(--red-500);">Emergency</span>
+    </button>
+    <button class="nav-item" data-screen="appointmentsScreen">
+      <div class="nav-item-wrapper">
+        <i class="fas fa-calendar-check"></i>
+        <span class="nav-badge" id="apptBadge" style="display:none;">0</span>
+      </div>
+      <span id="navAppointments">Appts</span>
+    </button>
+  </div>
+</div>
+
+<!-- Detail Sheet -->
+<div class="overlay-bg" id="overlayBg" onclick="closeDetailSheet()"></div>
+<div class="detail-sheet" id="detailSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div class="sheet-name" id="sheetName">–</div>
+    <button class="sheet-close" onclick="closeDetailSheet()">✕</button>
+  </div>
+  <div class="sheet-grid" id="sheetGrid"></div>
+  <div class="sheet-actions">
+    <button class="sheet-btn btn-directions" id="dirBtn">🧭 Directions</button>
+    <button class="sheet-btn btn-book" id="bookSheetBtn">📞 Book Appointment</button>
+  </div>
+</div>
+
+<!-- Appointment Modal -->
+<div class="modal-overlay" id="appointmentModal">
+  <div class="modal-sheet">
+    <h3 id="modalTitle">📅 Book Appointment</h3>
+    <div id="modalFacilityName" style="font-weight:600; margin-bottom:12px; color:var(--green-800);"></div>
+    <input type="text" id="patientName" placeholder="Full name">
+    <input type="tel" id="patientPhone" placeholder="Phone number">
+    <select id="appointmentTime">
+      <option value="">Select time</option>
+      <option value="09:00">09:00 AM</option>
+      <option value="10:00">10:00 AM</option>
+      <option value="11:00">11:00 AM</option>
+      <option value="14:00">02:00 PM</option>
+      <option value="15:30">03:30 PM</option>
+    </select>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-confirm" onclick="confirmBooking()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== DATA ====================
+const FACILITIES = [
+  { id:1, name:"King Faisal Hospital", district:"Gasabo, Kigali", category:"hospital", lat:-1.9500, lng:30.0588, open:"24h", rating:4.8, phone:"+250788303000", services:"Surgery, ICU, Cardiology", icon:"🏥" },
+  { id:2, name:"Rwanda Military Hospital", district:"Kanombe, Kigali", category:"hospital", lat:-1.9695, lng:30.1322, open:"24h", rating:4.5, phone:"+250788311611", services:"Emergency, Surgery", icon:"🏥" },
+  { id:3, name:"CHUK Teaching Hospital", district:"Nyarugenge, Kigali", category:"hospital", lat:-1.9536, lng:30.0616, open:"24h", rating:4.7, phone:"+250788303900", services:"Neurology, Pediatrics", icon:"🏥" },
+  { id:4, name:"Kibagabaga Hospital", district:"Gasabo, Kigali", category:"hospital", lat:-1.9303, lng:30.1052, open:"24h", rating:4.3, phone:"+250788303700", services:"General Medicine", icon:"🏥" },
+  { id:5, name:"Masaka Hospital", district:"Kicukiro, Kigali", category:"hospital", lat:-1.9985, lng:30.1010, open:"24h", rating:4.2, phone:"+250788303500", services:"Pediatrics", icon:"🏥" },
+  { id:6, name:"La Croix du Sud Clinic", district:"Kicukiro, Kigali", category:"clinic", lat:-2.0021, lng:30.0890, open:"open", rating:4.4, phone:"+250788386000", services:"Labs, Dentistry", icon:"🩺" },
+  { id:7, name:"Smile Dental Rwanda", district:"Gasabo, Kigali", category:"dentist", lat:-1.9520, lng:30.0640, open:"open", rating:4.7, phone:"+250784111222", services:"Orthodontics", icon:"🦷" },
+  { id:8, name:"PharmaCare Rwanda", district:"Gasabo, Kigali", category:"pharmacy", lat:-1.9500, lng:30.0600, open:"24h", rating:4.6, phone:"+250788222333", services:"Prescriptions", icon:"💊" },
+  { id:9, name:"Vision Care Center", district:"Gasabo, Kigali", category:"eye-care", lat:-1.9510, lng:30.0680, open:"open", rating:4.8, phone:"+250788888999", services:"Eye Exams", icon:"👁️" },
+  { id:10, name:"Muhima Maternity", district:"Nyarugenge, Kigali", category:"maternity", lat:-1.9621, lng:30.0478, open:"24h", rating:4.1, phone:"+250788302400", services:"Delivery", icon:"🤰" },
+  { id:11, name:"Cardiac Care Center", district:"Gasabo, Kigali", category:"heart-hospital", lat:-1.9530, lng:30.0700, open:"24h", rating:4.9, phone:"+250788777666", services:"Heart Surgery", icon:"❤️" },
+  { id:12, name:"Children's Medical Center", district:"Gasabo, Kigali", category:"children-hospital", lat:-1.9480, lng:30.0720, open:"24h", rating:4.8, phone:"+250788333222", services:"Vaccines", icon:"👶" },
+  { id:13, name:"Kigali Emergency Clinic", district:"Kicukiro, Kigali", category:"emergency", lat:-1.9888, lng:30.0978, open:"24h", rating:4.7, phone:"+250784911911", services:"Trauma", icon:"🚨" },
+  { id:14, name:"Emergency Response Center", district:"Gasabo, Kigali", category:"emergency", lat:-1.9400, lng:30.0600, open:"24h", rating:4.8, phone:"+250788911911", services:"Ambulance", icon:"🚨" }
+];
+
+// ==================== TRANSLATIONS ====================
+const t9n = {
+  en: {
+    langSubtitle: "Your healthcare finder in Rwanda",
+    tapLocation: "Tap to detect location",
+    nearby: "nearby",
+    available: "available",
+    listTitle: "Nearby Facilities",
+    navFind: "Find",
+    navMap: "Map",
+    navEmergency: "Emergency",
+    navAppointments: "Appts",
+    modalTitle: "📅 Book Appointment",
+    successMsg: "✅ Appointment booked! Check your SMS.",
+    mapTitle: "Healthcare Map",
+    emergencyTitle: "🚨 Emergency Services",
+    emergencySubtitle: "24/7 Emergency Response in Rwanda",
+    callEmergency: "Call Emergency Now",
+    ambulanceTitle: "Ambulance Services",
+    ambulanceDesc: "SAMU Rwanda: Call 912 for immediate ambulance dispatch",
+    erTitle: "Emergency Rooms",
+    erDesc: "CHUK, King Faisal, and Military Hospital have 24/7 ER",
+    bloodTitle: "Blood Bank",
+    bloodDesc: "National Blood Transfusion Centre: +250 788 304 000",
+    fireTitle: "Fire & Rescue",
+    fireDesc: "Fire Brigade: Call 111 for fire emergencies",
+    policeTitle: "Police Emergency",
+    policeDesc: "Rwanda National Police: Call 112 for police assistance",
+    apptsTitle: "📅 My Appointments",
+    apptsSubtitle: "Manage your upcoming bookings",
+    noAppts: "No appointments yet",
+    noApptsDesc: "Book your first appointment with a healthcare facility near you.",
+    findFacility: "Find a Facility",
+    confirmed: "Confirmed",
+    pending: "Pending",
+    completed: "Completed",
+    allCat: "All",
+    hospitalCat: "Hospitals",
+    clinicCat: "Clinics",
+    dentistCat: "Dentists",
+    pharmacyCat: "Pharmacy",
+    eyeCat: "Eye",
+    maternityCat: "Maternity",
+    heartCat: "Heart",
+    childrenCat: "Children",
+    emergencyCat: "Emergency"
+  },
+  rw: {
+    langSubtitle: "Shakisha ibitaro bya bugufi",
+    tapLocation: "Kanda umenye aho uri",
+    nearby: "hafi",
+    available: "birahari",
+    listTitle: "Ibitaro bya bugufi",
+    navFind: "Shakisha",
+    navMap: "Ikarita",
+    navEmergency: "Amakuba",
+    navAppointments: "Kwiyandikisha",
+    modalTitle: "📅 Kwiyandikisha",
+    successMsg: "✅ Kwiyandikisha byakozwe! Reba SMS.",
+    mapTitle: "Ikarita y'Ubuzima",
+    emergencyTitle: "🚨 Serivisi z'Amakuba",
+    emergencySubtitle: "Ubufasha bw'Amakuba 24/7 mu Rwanda",
+    callEmergency: "Hamagara Amakuba",
+    ambulanceTitle: "Serivisi z'Ambiransi",
+    ambulanceDesc: "SAMU Rwanda: Hamagara 912 kugira ngo ubone ambiransi",
+    erTitle: "Ibyumba by'Amakuba",
+    erDesc: "CHUK, King Faisal, n'Ibitaro bya Gisirikare bifite ER 24/7",
+    bloodTitle: "Banki y'Amaraso",
+    bloodDesc: "Ikigo cy'Igihugu cyo Gutanga Amaraso: +250 788 304 000",
+    fireTitle: "Abazimya Umuriro",
+    fireDesc: "Abazimya Umuriro: Hamagara 111",
+    policeTitle: "Polisi y'Amakuba",
+    policeDesc: "Polisi y'u Rwanda: Hamagara 112",
+    apptsTitle: "📅 Ibyandikishijwe",
+    apptsSubtitle: "Reba ibyo wandikishije",
+    noAppts: "Nta byandikishijwe",
+    noApptsDesc: "Iyandikishe ku kigo nderabuzima cya bugufi.",
+    findFacility: "Shakisha Ikigo",
+    confirmed: "Byemejwe",
+    pending: "Bitegerejwe",
+    completed: "Byarangiye",
+    allCat: "Byose",
+    hospitalCat: "Ibitaro",
+    clinicCat: "Amavuriro",
+    dentistCat: "Amenyo",
+    pharmacyCat: "Farumasi",
+    eyeCat: "Amaso",
+    maternityCat: "Ababyeyi",
+    heartCat: "Umutima",
+    childrenCat: "Abana",
+    emergencyCat: "Amakuba"
+  },
+  fr: {
+    langSubtitle: "Trouvez des soins près de chez vous",
+    tapLocation: "Appuyez pour localiser",
+    nearby: "à proximité",
+    available: "disponible",
+    listTitle: "Établissements",
+    navFind: "Chercher",
+    navMap: "Carte",
+    navEmergency: "Urgence",
+    navAppointments: "RDV",
+    modalTitle: "📅 Prendre RDV",
+    successMsg: "✅ RDV confirmé ! Vérifiez SMS.",
+    mapTitle: "Carte Santé",
+    emergencyTitle: "🚨 Services d'Urgence",
+    emergencySubtitle: "Intervention d'urgence 24/7 au Rwanda",
+    callEmergency: "Appeler les Urgences",
+    ambulanceTitle: "Services d'Ambulance",
+    ambulanceDesc: "SAMU Rwanda : Appelez le 912 pour une ambulance",
+    erTitle: "Salles d'Urgence",
+    erDesc: "CHUK, King Faisal et Hôpital Militaire ont des urgences 24/7",
+    bloodTitle: "Banque de Sang",
+    bloodDesc: "Centre National de Transfusion : +250 788 304 000",
+    fireTitle: "Pompiers",
+    fireDesc: "Sapeurs-Pompiers : Appelez le 111",
+    policeTitle: "Police Secours",
+    policeDesc: "Police Nationale : Appelez le 112",
+    apptsTitle: "📅 Mes Rendez-vous",
+    apptsSubtitle: "Gérez vos rendez-vous",
+    noAppts: "Aucun rendez-vous",
+    noApptsDesc: "Prenez votre premier rendez-vous dans un établissement.",
+    findFacility: "Trouver un Établissement",
+    confirmed: "Confirmé",
+    pending: "En attente",
+    completed: "Terminé",
+    allCat: "Tous",
+    hospitalCat: "Hôpitaux",
+    clinicCat: "Cliniques",
+    dentistCat: "Dentistes",
+    pharmacyCat: "Pharmacie",
+    eyeCat: "Yeux",
+    maternityCat: "Maternité",
+    heartCat: "Cœur",
+    childrenCat: "Enfants",
+    emergencyCat: "Urgence"
+  },
+  sw: {
+    langSubtitle: "Pata huduma za afya karibu",
+    tapLocation: "Gusa kutambua eneo",
+    nearby: "karibu",
+    available: "zinapatikana",
+    listTitle: "Vituo vya Afya",
+    navFind: "Tafuta",
+    navMap: "Ramani",
+    navEmergency: "Dharura",
+    navAppointments: "Miadi",
+    modalTitle: "📅 Panga Miadi",
+    successMsg: "✅ Miadi imefanywa! Angalia SMS.",
+    mapTitle: "Ramani ya Afya",
+    emergencyTitle: "🚨 Huduma za Dharura",
+    emergencySubtitle: "Msaada wa Dharura 24/7 Rwanda",
+    callEmergency: "Piga Dharura Sasa",
+    ambulanceTitle: "Huduma za Ambulance",
+    ambulanceDesc: "SAMU Rwanda: Piga 912 kwa ambulance ya haraka",
+    erTitle: "Vyumba vya Dharura",
+    erDesc: "CHUK, King Faisal, na Hospitali ya Kijeshi zina ER 24/7",
+    bloodTitle: "Benki ya Damu",
+    bloodDesc: "Kituo cha Taifa cha Utiaji Damu: +250 788 304 000",
+    fireTitle: "Zimamoto na Uokoaji",
+    fireDesc: "Kikosi cha Zimamoto: Piga 111",
+    policeTitle: "Polisi Dharura",
+    policeDesc: "Polisi ya Taifa: Piga 112",
+    apptsTitle: "📅 Miadi Yangu",
+    apptsSubtitle: "Simamia miadi yako ijayo",
+    noAppts: "Hakuna miadi",
+    noApptsDesc: "Panga miadi yako ya kwanza na kituo cha afya.",
+    findFacility: "Tafuta Kituo",
+    confirmed: "Imethibitishwa",
+    pending: "Inasubiri",
+    completed: "Imekamilika",
+    allCat: "Zote",
+    hospitalCat: "Hospitali",
+    clinicCat: "Kliniki",
+    dentistCat: "Meno",
+    pharmacyCat: "Dawa",
+    eyeCat: "Macho",
+    maternityCat: "Uzazi",
+    heartCat: "Moyo",
+    childrenCat: "Watoto",
+    emergencyCat: "Dharura"
+  }
+};
+
+// ==================== STATE ====================
+let currentLang = 'en';
+let currentScreen = 'findScreen';
+let map, mapFull, userMarker, userLat = -1.9441, userLng = 30.0619;
+let currentCategory = 'all', userLocated = false;
+let markers = [], fullMarkers = [], selectedFacility = null;
+let appointments = JSON.parse(localStorage.getItem('nearcare_appointments') || '[]');
+
+function t(key) { return t9n[currentLang]?.[key] || t9n['en'][key] || key; }
+
+// ==================== UI FUNCTIONS ====================
+function applyLanguage(lang) {
+  currentLang = lang;
+  document.getElementById('langLabel').textContent = lang.toUpperCase();
+  document.getElementById('langSubtitle').textContent = t('langSubtitle');
+  document.getElementById('locationText').textContent = userLocated ? '📍 Kigali' : t('tapLocation');
+  document.getElementById('listTitle').textContent = t('listTitle');
+  document.getElementById('nearbyLabel').textContent = t('nearby');
+  document.getElementById('availableLabel').textContent = t('available');
+  document.getElementById('modalTitle').textContent = t('modalTitle');
+  document.getElementById('mapTitle').textContent = t('mapTitle');
+  
+  // Emergency screen
+  document.getElementById('emergencyTitle').textContent = t('emergencyTitle');
+  document.getElementById('emergencySubtitle').textContent = t('emergencySubtitle');
+  document.getElementById('callEmergency').textContent = t('callEmergency');
+  document.getElementById('ambulanceTitle').textContent = t('ambulanceTitle');
+  document.getElementById('ambulanceDesc').textContent = t('ambulanceDesc');
+  document.getElementById('erTitle').textContent = t('erTitle');
+  document.getElementById('erDesc').textContent = t('erDesc');
+  document.getElementById('bloodTitle').textContent = t('bloodTitle');
+  document.getElementById('bloodDesc').textContent = t('bloodDesc');
+  document.getElementById('fireTitle').textContent = t('fireTitle');
+  document.getElementById('fireDesc').textContent = t('fireDesc');
+  document.getElementById('policeTitle').textContent = t('policeTitle');
+  document.getElementById('policeDesc').textContent = t('policeDesc');
+  
+  // Appointments screen
+  document.getElementById('apptsTitle').textContent = t('apptsTitle');
+  document.getElementById('apptsSubtitle').textContent = t('apptsSubtitle');
+  
+  // Navigation
+  document.getElementById('navFind').textContent = t('navFind');
+  document.getElementById('navMap').textContent = t('navMap');
+  document.getElementById('navEmergency').textContent = t('navEmergency');
+  document.getElementById('navAppointments').textContent = t('navAppointments');
+  
+  // Category chips
+  const catKeys = ['allCat','hospitalCat','clinicCat','dentistCat','pharmacyCat','eyeCat','maternityCat','heartCat','childrenCat','emergencyCat'];
+  document.querySelectorAll('#findScreen .cat-chip').forEach((chip, i) => {
+    if (catKeys[i]) {
+      const icon = chip.textContent.trim().split(' ')[0];
+      chip.innerHTML = `${icon} ${t(catKeys[i])}`;
+    }
+  });
+  
+  renderList();
+  renderAppointments();
+  if (currentScreen === 'mapScreen' && mapFull) updateFullMap();
+}
+
+function showLanguageScreen() {
+  document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('languageScreen').style.display = 'flex';
+  document.getElementById('bottomNav').style.display = 'none';
+}
+
+function initApp(lang) {
+  applyLanguage(lang);
+  document.getElementById('languageScreen').style.display = 'none';
+  document.getElementById('bottomNav').style.display = 'flex';
+  switchScreen('findScreen');
+  if (!map) initMaps();
+  detectLocation();
+}
+
+function switchScreen(screenId) {
+  currentScreen = screenId;
+  document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+  
+  // Update nav active state
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const navBtn = document.querySelector(`.nav-item[data-screen="${screenId}"]`);
+  if (navBtn) navBtn.classList.add('active');
+  
+  // Handle map screen
+  if (screenId === 'mapScreen' && mapFull) {
+    setTimeout(() => mapFull.invalidateSize(), 100);
+    updateFullMap();
+  }
+  if (screenId === 'appointmentsScreen') renderAppointments();
+  
+  // Scroll to top
+  document.getElementById('screensContainer').scrollTop = 0;
+}
+
+// ==================== MAPS ====================
+function initMaps() {
+  // Small map for Find screen
+  map = L.map('map', { zoomControl: false, attributionControl: false }).setView([userLat, userLng], 12);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
+  
+  // Full map for Map screen
+  mapFull = L.map('mapFull', { zoomControl: false, attributionControl: false }).setView([userLat, userLng], 13);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(mapFull);
+  
+  placeMarkers();
+  updateFullMap();
+}
+
+function placeMarkers() {
+  if (!map) return;
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
+  
+  const filtered = getFiltered();
+  filtered.forEach(f => {
+    const icon = L.divIcon({
+      html: `<div style="width:28px;height:28px;background:white;border:2px solid var(--green-400);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;">${f.icon}</div>`,
+      className: '', iconSize: [28,28], iconAnchor: [14,14]
+    });
+    const m = L.marker([f.lat, f.lng], { icon }).addTo(map);
+    m.on('click', () => selectFacility(f));
+    markers.push(m);
+  });
+}
+
+function updateFullMap() {
+  if (!mapFull) return;
+  fullMarkers.forEach(m => mapFull.removeLayer(m));
+  fullMarkers = [];
+  
+  FACILITIES.forEach(f => {
+    const color = f.category === 'emergency' ? '#ef4444' : f.category === 'hospital' ? '#185FA5' : 'var(--green-400)';
+    const icon = L.divIcon({
+      html: `<div style="width:32px;height:32px;background:white;border:2.5px solid ${color};border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;">${f.icon}</div>`,
+      className: '', iconSize: [32,32], iconAnchor: [16,16]
+    });
+    const m = L.marker([f.lat, f.lng], { icon }).addTo(mapFull);
+    m.bindPopup(`<b>${f.name}</b><br>${f.district}<br>⭐ ${f.rating}`);
+    fullMarkers.push(m);
+  });
+  
+  // User marker
+  if (userLocated) {
+    L.circleMarker([userLat, userLng], { radius: 8, color: '#639922', fillColor: '#639922', fillOpacity: 1 }).addTo(mapFull)
+      .bindPopup('<b>📍 You are here</b>');
+  }
+}
+
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371, dLat = (lat2-lat1)*Math.PI/180, dLon = (lon2-lon1)*Math.PI/180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function getFiltered() {
+  const maxDist = parseInt(document.getElementById('radiusSlider')?.value || 20);
+  return FACILITIES
+    .filter(f => currentCategory === 'all' || f.category === currentCategory)
+    .map(f => ({ ...f, dist: haversine(userLat, userLng, f.lat, f.lng) }))
+    .filter(f => f.dist <= maxDist)
+    .sort((a, b) => a.dist - b.dist);
+}
+
+// ==================== LOCATION ====================
+function detectLocation() {
+  document.getElementById('locationText').textContent = '📍 Detecting...';
+  
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(pos => {
+      userLat = pos.coords.latitude;
+      userLng = pos.coords.longitude;
+      userLocated = true;
+      finishLocation();
+    }, () => {
+      userLat = -1.9441; userLng = 30.0619;
+      userLocated = true;
+      finishLocation();
+    }, { timeout: 5000 });
+  } else {
+    finishLocation();
+  }
+}
+
+function finishLocation() {
+  document.getElementById('locationText').textContent = `📍 Kigali (${userLat.toFixed(2)}, ${userLng.toFixed(2)})`;
+  document.getElementById('pulseDot').classList.add('active');
+  
+  if (map) {
+    if (userMarker) map.removeLayer(userMarker);
+    userMarker = L.circleMarker([userLat, userLng], { radius: 6, color: '#639922', fillColor: '#639922', fillOpacity: 1 }).addTo(map);
+    map.setView([userLat, userLng], 13);
+    placeMarkers();
+  }
+  if (mapFull) updateFullMap();
+  renderList();
+}
+
+// ==================== RENDER ====================
+function renderList() {
+  const items = getFiltered();
+  document.getElementById('listCount').textContent = items.length;
+  document.getElementById('nearbyCount').textContent = items.length;
+  document.getElementById('availableCount').textContent = items.filter(f => f.open === '24h' || f.open === 'open').length;
+  
+  const starStr = r => '★'.repeat(Math.round(r)) + '☆'.repeat(5-Math.round(r));
+  
+  document.getElementById('facilitiesList').innerHTML = items.map(f => `
+    <div class="facility-card ${selectedFacility?.id === f.id ? 'selected' : ''}" onclick="selectFacilityById(${f.id})">
+      <div class="facility-icon">${f.icon}</div>
+      <div class="facility-info">
+        <div class="facility-name">${f.name}</div>
+        <div class="facility-district">📍 ${f.district}</div>
+        <div class="facility-meta">
+          <span class="meta-badge ${f.open === '24h' ? 'badge-24h' : 'badge-open'}">${f.open === '24h' ? '24/7' : 'Open'}</span>
+          <span class="stars">${starStr(f.rating)}</span>
+          <span class="meta-badge badge-distance">${f.dist.toFixed(1)} km</span>
+        </div>
+        <button class="book-btn" onclick="event.stopPropagation(); openBooking(${f.id})">📞 Book Now</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderAppointments() {
+  const list = document.getElementById('appointmentsList');
+  const badge = document.getElementById('apptBadge');
+  
+  if (appointments.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">📅</div>
+        <h3>${t('noAppts')}</h3>
+        <p>${t('noApptsDesc')}</p>
+        <button class="btn-primary" onclick="switchScreen('findScreen')">${t('findFacility')}</button>
+      </div>
+    `;
+    badge.style.display = 'none';
+  } else {
+    badge.style.display = 'flex';
+    badge.textContent = appointments.length;
+    
+    list.innerHTML = appointments.map((apt, i) => {
+      const f = FACILITIES.find(x => x.id === apt.facilityId);
+      const statusClass = apt.status === 'confirmed' ? 'status-confirmed' : apt.status === 'pending' ? 'status-pending' : 'status-completed';
+      return `
+        <div class="appointment-card">
+          <div class="appointment-date">
+            <div class="day">${apt.day || '15'}</div>
+            <div class="month">${apt.month || 'JAN'}</div>
+          </div>
+          <div class="appointment-info">
+            <h4>${f?.name || 'Unknown Facility'}</h4>
+            <p>🕐 ${apt.time || '09:00'} | 📞 ${apt.phone || 'N/A'}</p>
+            <span class="appointment-status ${statusClass}">${t(apt.status || 'confirmed')}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+function selectFacilityById(id) {
+  const f = FACILITIES.find(x => x.id === id);
+  if (f) selectFacility(f);
+}
+
+function selectFacility(f) {
+  selectedFacility = f;
+  
+  document.getElementById('sheetName').textContent = f.name;
+  const starStr = r => '★'.repeat(Math.round(r)) + '☆'.repeat(5-Math.round(r));
+  document.getElementById('sheetGrid').innerHTML = `
+    <div><div class="sheet-field-label">District</div><div class="sheet-field-value">${f.district}</div></div>
+    <div><div class="sheet-field-label">Distance</div><div class="sheet-field-value">${f.dist?.toFixed(1) || '?'} km</div></div>
+    <div><div class="sheet-field-label">Hours</div><div class="sheet-field-value">${f.open === '24h' ? '24/7' : 'Open'}</div></div>
+    <div><div class="sheet-field-label">Rating</div><div class="sheet-field-value">${starStr(f.rating)}</div></div>
+    <div style="grid-column:1/-1"><div class="sheet-field-label">Services</div><div class="sheet-field-value">${f.services}</div></div>
+  `;
+  
+  document.getElementById('dirBtn').onclick = () => window.open(`https://maps.google.com/?q=${f.lat},${f.lng}`, '_blank');
+  document.getElementById('bookSheetBtn').onclick = () => { closeDetailSheet(); openBooking(f.id); };
+  
+  document.getElementById('detailSheet').classList.add('visible');
+  document.getElementById('overlayBg').classList.add('visible');
+  
+  if (map) map.setView([f.lat, f.lng], 15);
+  renderList();
+}
+
+function closeDetailSheet() {
+  document.getElementById('detailSheet').classList.remove('visible');
+  document.getElementById('overlayBg').classList.remove('visible');
+  selectedFacility = null;
+  renderList();
+}
+
+// ==================== BOOKING ====================
+function openBooking(facilityId) {
+  const f = FACILITIES.find(x => x.id === facilityId);
+  if (!f) return;
+  document.getElementById('modalFacilityName').textContent = f.name;
+  document.getElementById('patientName').value = '';
+  document.getElementById('patientPhone').value = '';
+  document.getElementById('appointmentTime').value = '';
+  document.getElementById('appointmentModal').style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('appointmentModal').style.display = 'none';
+}
+
+function confirmBooking() {
+  const name = document.getElementById('patientName').value.trim();
+  const phone = document.getElementById('patientPhone').value.trim();
+  const time = document.getElementById('appointmentTime').value;
+  if (!name || !phone || !time) { alert('Fill all fields'); return; }
+  
+  const facilityName = document.getElementById('modalFacilityName').textContent;
+  const facilityId = FACILITIES.find(f => f.name === facilityName)?.id;
+  
+  // Save appointment
+  const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  const apt = {
+    id: Date.now(),
+    facilityId: facilityId,
+    name: name,
+    phone: phone,
+    time: time,
+    day: new Date().getDate(),
+    month: months[new Date().getMonth()],
+    status: 'confirmed',
+    date: new Date().toISOString()
+  };
+  appointments.unshift(apt);
+  localStorage.setItem('nearcare_appointments', JSON.stringify(appointments));
+  
+  closeModal();
+  
+  const toast = document.getElementById('toast');
+  toast.textContent = t('successMsg');
+  toast.style.display = 'block';
+  setTimeout(() => toast.style.display = 'none', 3500);
+  
+  renderAppointments();
+}
+
+// ==================== CATEGORY & RADIUS ====================
+document.querySelectorAll('#findScreen .cat-chip').forEach(chip => {
+  chip.addEventListener('click', function() {
+    document.querySelectorAll('#findScreen .cat-chip').forEach(c => c.classList.remove('active'));
+    this.classList.add('active');
+    currentCategory = this.dataset.cat;
+    placeMarkers();
+    renderList();
+  });
+});
+
+function updateRadius(val) {
+  placeMarkers();
+  renderList();
+}
+
+// ==================== BOTTOM NAVIGATION ====================
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', function() {
+    const screenId = this.dataset.screen;
+    if (screenId) switchScreen(screenId);
+  });
+});
+
+// ==================== LANGUAGE BUTTONS ====================
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => initApp(btn.dataset.lang));
+});
+
+// ==================== MODAL CLOSE ====================
+document.getElementById('appointmentModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ==================== INIT ====================
+window.addEventListener('load', () => {
+  document.getElementById('languageScreen').style.display = 'flex';
+  document.getElementById('bottomNav').style.display = 'none';
+  document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
+});
+</script>
+</body>
+</html>
