@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="rw">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>Near Care | Find Nearby Health Centers</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, 'Helvetica Neue', system-ui, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    .app-container {
+      max-width: 520px;
+      width: 100%;
+      background: white;
+      border-radius: 32px;
+      box-shadow: 0 25px 50px rgba(0, 40, 20, 0.15);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 95vh;
+      position: relative;
+    }
+
+    .language-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 20px;
+      flex: 1;
+      background: linear-gradient(180deg, #ffffff 0%, #f0faf3 100%);
+    }
+
+    .language-screen .logo {
+      font-size: 4rem;
+      color: #0b6e4f;
+      margin-bottom: 20px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .language-screen h2 {
+      font-size: 1.8rem;
+      color: #1e4620;
+      margin-bottom: 30px;
+    }
+
+    .language-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .lang-btn {
+      background: white;
+      border: 2px solid #cfe5d8;
+      border-radius: 24px;
+      padding: 20px 15px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #1e4620;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .lang-btn i {
+      font-size: 2rem;
+      color: #0b6e4f;
+    }
+
+    .lang-btn:hover {
+      background: #0b6e4f;
+      color: white;
+      border-color: #0b6e4f;
+      transform: translateY(-3px);
+    }
+
+    .lang-btn:hover i {
+      color: white;
+    }
+
+    .main-app {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #0b6e4f 0%, #169b6d 100%);
+      color: white;
+      padding: 20px 16px 24px;
+      border-bottom-left-radius: 28px;
+      border-bottom-right-radius: 28px;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .lang-indicator {
+      background: rgba(255,255,255,0.2);
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.3s;
+    }
+
+    .lang-indicator:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .location-bar {
+      background: white;
+      border-radius: 30px;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #1a3b2f;
+      font-weight: 500;
+      font-size: 0.95rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      transition: all 0.3s;
+    }
+
+    .location-bar i {
+      color: #0b6e4f;
+    }
+
+    .location-bar .fa-location-arrow {
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 50%;
+      transition: all 0.3s;
+    }
+
+    .location-bar .fa-location-arrow:hover {
+      background: #e8f5e9;
+      transform: rotate(45deg);
+    }
+
+    .map-container {
+      height: 250px;
+      margin: 16px;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 3px solid #d0e5da;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    .map-controls {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .map-control-btn {
+      background: white;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: #0b6e4f;
+      transition: all 0.3s;
+    }
+
+    .map-control-btn:hover {
+      background: #0b6e4f;
+      color: white;
+    }
+
+    .quick-stats {
+      display: flex;
+      gap: 10px;
+      margin: 8px 16px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #e9f6ef 0%, #f0faf3 100%);
+      border-radius: 20px;
+      padding: 14px 16px;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #0a4b33;
+      border: 1px solid #c0e0cf;
+      transition: all 0.3s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 16px 10px;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: #1e4620;
+    }
+
+    .sort-btn {
+      background: #f0faf3;
+      border: 1px solid #c0e0cf;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      color: #0b6e4f;
+      transition: all 0.3s;
+    }
+
+    .sort-btn:hover {
+      background: #0b6e4f;
+      color: white;
+    }
+
+    .centers-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 0 16px 10px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .center-card {
+      background: white;
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+      border: 2px solid #e8f5e9;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .center-card:hover {
+      border-color: #0b6e4f;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    }
+
+    .center-card.selected {
+      border-color: #0b6e4f;
+      background: #f0faf3;
+    }
+
+    .distance-badge {
+      background: linear-gradient(135deg, #0b6e4f, #169b6d);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .btn-appointment {
+      background: linear-gradient(135deg, #0b6e4f, #169b6d);
+      color: white;
+      border: none;
+      border-radius: 30px;
+      padding: 12px;
+      font-weight: 700;
+      width: 100%;
+      margin-top: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-appointment:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(11,110,79,0.3);
+    }
+
+    .info-box {
+      background: linear-gradient(135deg, #fff9e6, #fff3cd);
+      margin: 12px 16px;
+      border-radius: 20px;
+      padding: 16px;
+      border-left: 6px solid #f4b436;
+      display: flex;
+      gap: 12px;
+      font-size: 0.9rem;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal {
+      background: white;
+      width: 90%;
+      max-width: 420px;
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+      animation: slideUp 0.3s;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal input, .modal select {
+      width: 100%;
+      padding: 14px;
+      border-radius: 20px;
+      border: 2px solid #e0e8e3;
+      margin: 8px 0;
+      font-size: 1rem;
+      background: #f9fcfb;
+      transition: all 0.3s;
+    }
+
+    .modal input:focus, .modal select:focus {
+      border-color: #0b6e4f;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(11,110,79,0.1);
+    }
+
+    .success-message {
+      display: none;
+      background: linear-gradient(135deg, #d4edda, #c3e6cb);
+      margin: 12px 16px;
+      padding: 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      color: #155724;
+      text-align: center;
+      animation: slideDown 0.3s;
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    footer {
+      margin-top: auto;
+      text-align: center;
+      padding: 16px;
+      font-size: 0.85rem;
+      color: #5f7b6a;
+      border-top: 1px solid #e8f5e9;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+<div class="app-container" id="appContainer">
+  <!-- Language Selection Screen -->
+  <div id="languageScreen" class="language-screen">
+    <div class="logo">
+      <i class="fas fa-heartbeat"></i>
+    </div>
+    <h2 id="langTitle">Choose your language / Hitamo ururimi</h2>
+    <div class="language-grid">
+      <button class="lang-btn" data-lang="en">
+        <i class="fas fa-flag-usa"></i> English
+      </button>
+      <button class="lang-btn" data-lang="fr">
+        <i class="fas fa-flag"></i> Français
+      </button>
+      <button class="lang-btn" data-lang="rw">
+        <i class="fas fa-flag"></i> Kinyarwanda
+      </button>
+      <button class="lang-btn" data-lang="sw">
+        <i class="fas fa-flag"></i> Kiswahili
+      </button>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="mainApp" class="main-app">
+    <div class="header">
+      <div class="header-top">
+        <h1>
+          <i class="fas fa-heartbeat"></i> 
+          <span id="appName">Near Care</span>
+        </h1>
+        <span class="lang-indicator" id="currentLangBadge">
+          <i class="fas fa-globe"></i> 
+          <span id="langText">English</span>
+        </span>
+      </div>
+      <div class="location-bar">
+        <i class="fas fa-map-marker-alt"></i> 
+        <span id="locationText">Detecting your location...</span>
+        <i class="fas fa-location-arrow" id="refreshLocationBtn" title="Refresh location"></i>
+      </div>
+    </div>
+
+    <!-- Map Container -->
+    <div class="map-container" id="mapContainer">
+      <div id="map" style="height: 100%;"></div>
+      <div class="map-controls">
+        <button class="map-control-btn" id="zoomInBtn" title="Zoom in">
+          <i class="fas fa-plus"></i>
+        </button>
+        <button class="map-control-btn" id="zoomOutBtn" title="Zoom out">
+          <i class="fas fa-minus"></i>
+        </button>
+        <button class="map-control-btn" id="locateMeBtn" title="Find my location">
+          <i class="fas fa-crosshairs"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="quick-stats">
+      <div class="stat-card">
+        <i class="fas fa-map-marker-alt"></i> 
+        <span id="nearbyText">12 nearby</span>
+      </div>
+      <div class="stat-card">
+        <i class="fas fa-user-md"></i> 
+        <span id="doctorsText">28 doctors available</span>
+      </div>
+    </div>
+
+    <div class="section-title">
+      <span id="nearbyCentersTitle">
+        <i class="fas fa-hospital"></i> Nearby Centers
+      </span>
+      <button class="sort-btn" id="sortByDistanceBtn">
+        <i class="fas fa-sort-amount-down"></i> Sort by distance
+      </button>
+    </div>
+
+    <div id="centersContainer" class="centers-list"></div>
+
+    <div class="info-box">
+      <i class="fas fa-info-circle"></i>
+      <div class="info-text" id="healthInfoBox"></div>
+    </div>
+
+    <div id="successMessage" class="success-message"></div>
+    <footer id="footerText">Near Care · Connecting you to health</footer>
+  </div>
+</div>
+
+<!-- Appointment Modal -->
+<div class="modal-overlay" id="appointmentModal">
+  <div class="modal">
+    <h3 id="modalTitle" style="color: #0b6e4f; margin-bottom: 15px;">
+      <i class="fas fa-calendar-check"></i> Book Appointment
+    </h3>
+    <div id="selectedCenterName" style="font-weight:600; margin-bottom:15px; color: #1e4620;"></div>
+    <input type="text" id="patientName" placeholder="Full name">
+    <input type="tel" id="patientPhone" placeholder="Phone number">
+    <select id="appointmentTime">
+      <option value="">Select preferred time</option>
+      <option value="09:00">09:00 AM</option>
+      <option value="10:00">10:00 AM</option>
+      <option value="11:00">11:00 AM</option>
+      <option value="14:00">02:00 PM</option>
+      <option value="15:30">03:30 PM</option>
+    </select>
+    <div style="display:flex; gap:12px; margin-top:20px;">
+      <button id="cancelModal" style="flex:1; padding:14px; border-radius:30px; background:#e5eae7; border:none; font-weight:600; cursor:pointer;">
+        Cancel
+      </button>
+      <button id="confirmBooking" style="flex:1; padding:14px; border-radius:30px; background:linear-gradient(135deg, #0b6e4f, #169b6d); color:white; border:none; font-weight:600; cursor:pointer;">
+        Confirm Booking
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  (function() {
+    // ---------- TRANSLATIONS ----------
+    const translations = {
+      en: {
+        appName: "Near Care",
+        langTitle: "Choose your language",
+        detecting: "Detecting your location...",
+        locationUnavailable: "Location unavailable",
+        locationAccuracy: "Accuracy",
+        nearbyText: "12 health centers nearby",
+        doctorsText: "28 doctors available",
+        nearbyCentersTitle: "Nearby Health Centers",
+        healthInfo: "<h4>📍 Health Tips</h4><p>Find nearby health centers and book appointments easily. Check doctor availability in real-time and avoid long queues.</p>",
+        footer: "Near Care · Your health, our priority",
+        modalTitle: "Book Appointment",
+        patientNamePlaceholder: "Full name",
+        phonePlaceholder: "Phone number",
+        timeDefault: "Select preferred time",
+        cancelBtn: "Cancel",
+        confirmBtn: "Confirm Booking",
+        successMessage: "✅ Appointment booked successfully! You will receive a confirmation SMS shortly.",
+        doctorAvailable: "Doctor available",
+        doctorUnavailable: "Doctor unavailable",
+        openNow: "Open now",
+        closed: "Closed",
+        queue: "Queue",
+        bookBtn: "Book Appointment",
+        distanceUnit: "km",
+        sortByDistance: "Sort by distance"
+      },
+      fr: {
+        appName: "Near Care",
+        langTitle: "Choisissez votre langue",
+        detecting: "Détection de votre position...",
+        locationUnavailable: "Localisation indisponible",
+        locationAccuracy: "Précision",
+        nearbyText: "12 centres à proximité",
+        doctorsText: "28 médecins disponibles",
+        nearbyCentersTitle: "Centres de santé à proximité",
+        healthInfo: "<h4>📍 Conseils santé</h4><p>Trouvez des centres de santé et prenez rendez-vous facilement. Vérifiez la disponibilité des médecins en temps réel.</p>",
+        footer: "Near Care · Votre santé, notre priorité",
+        modalTitle: "Prendre rendez-vous",
+        patientNamePlaceholder: "Nom complet",
+        phonePlaceholder: "Numéro de téléphone",
+        timeDefault: "Choisissez l'heure",
+        cancelBtn: "Annuler",
+        confirmBtn: "Confirmer",
+        successMessage: "✅ Rendez-vous confirmé ! Vous recevrez un SMS de confirmation.",
+        doctorAvailable: "Médecin disponible",
+        doctorUnavailable: "Indisponible",
+        openNow: "Ouvert",
+        closed: "Fermé",
+        queue: "File d'attente",
+        bookBtn: "Prendre RDV",
+        distanceUnit: "km",
+        sortByDistance: "Trier par distance"
+      },
+      rw: {
+        appName: "Near Care",
+        langTitle: "Hitamo ururimi",
+        detecting: "Kumenya aho uri...",
+        locationUnavailable: "Ahantu ntihabonetse",
+        locationAccuracy: "Ukuri",
+        nearbyText: "Ibitaro 12 byegereye",
+        doctorsText: "Abaganga 28 bariho",
+        nearbyCentersTitle: "Ibitaro bya bugufi",
+        healthInfo: "<h4>📍 Inama z'ubuzima</h4><p>Shakisha ibitaro bya bugufi kandi wandikishe byoroshye. Reba umwanya w'abaganga kugirango wirinde ikiruhuko kirekire.</p>",
+        footer: "Near Care · Ubuzima bwawe, ikiganza cyacu",
+        modalTitle: "Kwiyandikisha kwa Muganga",
+        patientNamePlaceholder: "Amazina yose",
+        phonePlaceholder: "Numero ya telefoni",
+        timeDefault: "Hitamo igihe",
+        cancelBtn: "Kureka",
+        confirmBtn: "Emeza",
+        successMessage: "✅ Kwiyandikisha byakozwe neza! Uraboherwe ubutumwa bugufi bwo kwemeza.",
+        doctorAvailable: "Umuganga arahari",
+        doctorUnavailable: "Ntaho ari",
+        openNow: "Gufunguye",
+        closed: "Gifunze",
+        queue: "Umurongo",
+        bookBtn: "Kwiyandikisha",
+        distanceUnit: "km",
+        sortByDistance: "Tondeka ukurikije intera"
+      },
+      sw: {
+        appName: "Near Care",
+        langTitle: "Chagua lugha",
+        detecting: "Inatafuta eneo lako...",
+        locationUnavailable: "Eneo halipatikani",
+        locationAccuracy: "Usahihi",
+        nearbyText: "Vituo 12 vya afya karibu",
+        doctorsText: "Madaktari 28 wapo",
+        nearbyCentersTitle: "Vituo vya Afya vya Karibu",
+        healthInfo: "<h4>📍 Vidokezo vya Afya</h4><p>Tafuta vituo vya afya vilivyo karibu na upange miadi kwa urahisi. Angalia upatikanaji wa daktari kwa wakati halisi.</p>",
+        footer: "Near Care · Afya yako, kipaumbele chetu",
+        modalTitle: "Panga Miadi",
+        patientNamePlaceholder: "Jina kamili",
+        phonePlaceholder: "Nambari ya simu",
+        timeDefault: "Chagua muda",
+        cancelBtn: "Ghairi",
+        confirmBtn: "Thibitisha",
+        successMessage: "✅ Miadi imethibitishwa! Utapokea SMS ya uthibitisho.",
+        doctorAvailable: "Daktari yupo",
+        doctorUnavailable: "Hayupo",
+        openNow: "Imefunguliwa",
+        closed: "Imefungwa",
+        queue: "Foleni",
+        bookBtn: "Panga Miadi",
+        distanceUnit: "km",
+        sortByDistance: "Panga kwa umbali"
+      }
+    };
+
+    let currentLang = 'en';
+    let userLocation = null;
+    let locationAccuracy = null;
+    let map = null;
+    let userMarker = null;
+    let centerMarkers = [];
+    let selectedCenterId = null;
+
+    // Health centers with coordinates (Kigali area)
+    const centersData = [
+      { id:1, name:"Kacyiru Hospital", lat:-1.9355, lng:30.0912, doctorAvailable:true, doctorName:"Dr. Uwimana", openNow:true, queue:5, specialty:"General Medicine", phone:"+250 788 123 456" },
+      { id:2, name:"Gisozi Health Center", lat:-1.9441, lng:30.0795, doctorAvailable:true, doctorName:"Dr. Mukamana", openNow:true, queue:3, specialty:"Pediatrics", phone:"+250 788 234 567" },
+      { id:3, name:"Kimironko Clinic", lat:-1.9514, lng:30.1104, doctorAvailable:false, doctorName:"Dr. Habimana", openNow:true, queue:12, specialty:"Emergency", phone:"+250 788 345 678" },
+      { id:4, name:"Remera Hospital", lat:-1.9532, lng:30.1045, doctorAvailable:true, doctorName:"Dr. Ingabire", openNow:false, queue:8, specialty:"Cardiology", phone:"+250 788 456 789" },
+      { id:5, name:"Nyamirambo Health Post", lat:-1.9782, lng:30.0487, doctorAvailable:true, doctorName:"Dr. Niyonzima", openNow:true, queue:2, specialty:"General Medicine", phone:"+250 788 567 890" },
+      { id:6, name:"Kicukiro Health Center", lat:-1.9856, lng:30.0867, doctorAvailable:true, doctorName:"Dr. Uwase", openNow:true, queue:4, specialty:"Maternal Health", phone:"+250 788 678 901" },
+      { id:7, name:"Nyarugenge District Hospital", lat:-1.9536, lng:30.0605, doctorAvailable:true, doctorName:"Dr. Mugabo", openNow:true, queue:7, specialty:"Surgery", phone:"+250 788 789 012" }
+    ];
+
+    // DOM elements
+    const languageScreen = document.getElementById('languageScreen');
+    const mainApp = document.getElementById('mainApp');
+    const langBtns = document.querySelectorAll('.lang-btn');
+    const locationText = document.getElementById('locationText');
+    const refreshLocationBtn = document.getElementById('refreshLocationBtn');
+    const centersContainer = document.getElementById('centersContainer');
+    const modalOverlay = document.getElementById('appointmentModal');
+    const cancelModalBtn = document.getElementById('cancelModal');
+    const confirmBookingBtn = document.getElementById('confirmBooking');
+    const successDiv = document.getElementById('successMessage');
+    const sortByDistanceBtn = document.getElementById('sortByDistanceBtn');
+
+    function t(key) {
+      return translations[currentLang][key] || key;
+    }
+
+    function applyLanguage(lang) {
+      currentLang = lang;
+      document.getElementById('appName').textContent = t('appName');
+      document.getElementById('langText').textContent = 
+        lang === 'rw' ? 'Kinyarwanda' : 
+        lang === 'fr' ? 'Français' : 
+        lang === 'sw' ? 'Kiswahili' : 'English';
+      document.getElementById('nearbyText').textContent = t('nearbyText');
+      document.getElementById('doctorsText').textContent = t('doctorsText');
+      document.getElementById('nearbyCentersTitle').innerHTML = `<i class="fas fa-hospital"></i> ${t('nearbyCentersTitle')}`;
+      document.getElementById('healthInfoBox').innerHTML = t('healthInfo');
+      document.getElementById('footerText').textContent = t('footer');
+      document.getElementById('modalTitle').innerHTML = `<i class="fas fa-calendar-check"></i> ${t('modalTitle')}`;
+      document.getElementById('patientName').placeholder = t('patientNamePlaceholder');
+      document.getElementById('patientPhone').placeholder = t('phonePlaceholder');
+      document.getElementById('appointmentTime').options[0].textContent = t('timeDefault');
+      document.getElementById('cancelModal').textContent = t('cancelBtn');
+      document.getElementById('confirmBooking').textContent = t('confirmBtn');
+      sortByDistanceBtn.innerHTML = `<i class="fas fa-sort-amount-down"></i> ${t('sortByDistance')}`;
+      
+      if (!userLocation) {
+        locationText.textContent = t('detecting');
+      } else {
+        updateLocationDisplay();
+      }
+      
+      renderCenters();
+      updateMapMarkers();
+    }
+
+    function updateLocationDisplay() {
+      if (userLocation) {
+        const lat = userLocation.lat.toFixed(4);
+        const lng = userLocation.lng.toFixed(4);
+        let displayText = `📍 ${lat}, ${lng}`;
+        if (locationAccuracy) {
+          displayText += ` (${t('locationAccuracy')}: ±${Math.round(locationAccuracy)}m)`;
+        }
+        locationText.textContent = displayText;
+      } else {
+        locationText.textContent = t('locationUnavailable');
+      }
+    }
+
+    function getDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) ** 2 + 
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+                Math.sin(dLon/2) ** 2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    function renderCenters() {
+      let sortedCenters = [...centersData];
+      
+      if (userLocation) {
+        sortedCenters.sort((a, b) => 
+          getDistance(userLocation.lat, userLocation.lng, a.lat, a.lng) - 
+          getDistance(userLocation.lat, userLocation.lng, b.lat, b.lng)
+        );
+      }
+
+      centersContainer.innerHTML = sortedCenters.map(center => {
+        let distanceText = '';
+        if (userLocation) {
+          const dist = getDistance(userLocation.lat, userLocation.lng, center.lat, center.lng);
+          distanceText = `${dist.toFixed(1)} ${t('distanceUnit')}`;
+        } else {
+          distanceText = '? km';
+        }
+        
+        const avail = center.doctorAvailable ? t('doctorAvailable') : t('doctorUnavailable');
+        const open = center.openNow ? t('openNow') : t('closed');
+        const isSelected = center.id === selectedCenterId;
+        
+        return `
+          <div class="center-card ${isSelected ? 'selected' : ''}" data-center-id="${center.id}">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="font-size:1.1rem;">${center.name}</strong>
+              <span class="distance-badge">
+                <i class="fas fa-location-dot"></i> ${distanceText}
+              </span>
+            </div>
+            <div style="font-size:0.9rem; margin:8px 0; color: #555;">
+              <i class="fas fa-user-md"></i> ${center.doctorName} · ${center.specialty}
+            </div>
+            <div style="display:flex; gap:10px; font-size:0.85rem;">
+              <span style="color: ${center.doctorAvailable ? '#0b6e4f' : '#c44536'};">
+                <i class="fas fa-${center.doctorAvailable ? 'check-circle' : 'times-circle'}"></i> ${avail}
+              </span>
+              <span style="color: ${center.openNow ? '#0b6e4f' : '#c44536'};">
+                <i class="fas fa-${center.openNow ? 'door-open' : 'door-closed'}"></i> ${open}
+              </span>
+              <span>
+                <i class="fas fa-users"></i> ${t('queue')}: ${center.queue}
+              </span>
+            </div>
+            <button class="btn-appointment open-modal-btn" data-id="${center.id}">
+              <i class="fas fa-calendar-plus"></i> ${t('bookBtn')}
+            </button>
+          </div>`;
+      }).join('');
+
+      // Add click handlers for center cards
+      document.querySelectorAll('.center-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+          if (!e.target.classList.contains('open-modal-btn')) {
+            const centerId = parseInt(this.dataset.centerId);
+            selectCenter(centerId);
+          }
+        });
+      });
+
+      // Add click handlers for booking buttons
+      document.querySelectorAll('.open-modal-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const id = parseInt(btn.dataset.id);
+          const center = centersData.find(c => c.id === id);
+          if (center) openModal(center);
+        });
+      });
+    }
+
+    function selectCenter(centerId) {
+      selectedCenterId = centerId;
+      const center = centersData.find(c => c.id === centerId);
+      if (center && map) {
+        map.setView([center.lat, center.lng], 16);
+        // Open popup for the selected center
+        centerMarkers.forEach(marker => {
+          if (marker.getLatLng().lat === center.lat && marker.getLatLng().lng === center.lng) {
+            marker.openPopup();
+          }
+        });
+      }
+      renderCenters();
+    }
+
+    // ----- MAP FUNCTIONS -----
+    function initMap(lat, lng) {
+      if (map) {
+        map.setView([lat, lng], 14);
+        if (userMarker) {
+          userMarker.setLatLng([lat, lng]);
+        }
+        return;
+      }
+      
+      map = L.map('map', {
+        zoomControl: false
+      }).setView([lat, lng], 14);
+      
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+      
+      // Custom user icon
+      const userIcon = L.divIcon({
+        html: '<i class="fas fa-circle" style="color: #0b6e4f; font-size: 20px; text-shadow: 0 0 10px rgba(11,110,79,0.5);"></i>',
+        className: 'user-location-icon',
+        iconSize: [20, 20]
+      });
+      
+      userMarker = L.marker([lat, lng], { icon: userIcon })
+        .addTo(map)
+        .bindPopup('<b>Your Location</b>');
+      
+      updateMapMarkers();
+    }
+
+    function updateMapMarkers() {
+      if (!map) return;
+      
+      // Clear old markers
+      centerMarkers.forEach(m => map.removeLayer(m));
+      centerMarkers = [];
+      
+      centersData.forEach(center => {
+        const avail = center.doctorAvailable ? t('doctorAvailable') : t('doctorUnavailable');
+        const open = center.openNow ? t('openNow') : t('closed');
+        
+        const popupContent = `
+          <div style="font-family: 'Segoe UI', sans-serif;">
+            <b style="font-size:1.1rem;">${center.name}</b><br>
+            <i class="fas fa-user-md"></i> ${center.doctorName}<br>
+            <span style="color: ${center.doctorAvailable ? '#0b6e4f' : '#c44536'};">
+              ${avail}
+            </span> · 
+            <span style="color: ${center.openNow ? '#0b6e4f' : '#c44536'};">
+              ${open}
+            </span><br>
+            <small>📞 ${center.phone}</small><br>
+            <button onclick="window.bookFromMap(${center.id})" 
+                    style="background:#0b6e4f; color:white; border:none; padding:5px 10px; border-radius:15px; margin-top:5px; cursor:pointer;">
+              ${t('bookBtn')}
+            </button>
+          </div>
+        `;
+        
+        const marker = L.marker([center.lat, center.lng])
+          .addTo(map)
+          .bindPopup(popupContent);
+        
+        centerMarkers.push(marker);
+      });
+    }
+
+    // Global function for map popup booking
+    window.bookFromMap = function(centerId) {
+      const center = centersData.find(c => c.id === centerId);
+      if (center) openModal(center);
+    };
+
+    function locateUser() {
+      locationText.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${t('detecting')}`;
+      
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            userLocation = {
+              lat: pos.coords.latitude,
+              lng: pos.coords.longitude
+            };
+            locationAccuracy = pos.coords.accuracy;
+            updateLocationDisplay();
+            
+            if (!map) {
+              initMap(userLocation.lat, userLocation.lng);
+            } else {
+              map.setView([userLocation.lat, userLocation.lng], 14);
+              if (userMarker) {
+                userMarker.setLatLng([userLocation.lat, userLocation.lng]);
+              }
+            }
+            
+            renderCenters();
+            updateMapMarkers();
+          },
+          (err) => {
+            console.warn("Geolocation error:", err);
+            locationText.textContent = t('locationUnavailable');
+            // Fallback to Kigali center
+            userLocation = { lat: -1.9441, lng: 30.0619 };
+            if (!map) initMap(userLocation.lat, userLocation.lng);
+            renderCenters();
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+          }
+        );
+      } else {
+        locationText.textContent = t('locationUnavailable');
+        userLocation = { lat: -1.9441, lng: 30.0619 };
+        if (!map) initMap(userLocation.lat, userLocation.lng);
+        renderCenters();
+      }
+    }
+
+    // Modal logic
+    function openModal(center) {
+      document.getElementById('selectedCenterName').innerHTML = `
+        <i class="fas fa-hospital"></i> ${center.name}<br>
+        <small><i class="fas fa-user-md"></i> ${center.doctorName}</small>
+      `;
+      document.getElementById('patientName').value = '';
+      document.getElementById('patientPhone').value = '';
+      document.getElementById('appointmentTime').value = '';
+      modalOverlay.style.display = 'flex';
+    }
+
+    function closeModal() {
+      modalOverlay.style.display = 'none';
+    }
+
+    confirmBookingBtn.addEventListener('click', () => {
+      const name = document.getElementById('patientName').value.trim();
+      const phone = document.getElementById('patientPhone').value.trim();
+      const time = document.getElementById('appointmentTime').value;
+      
+      if (!name || !phone || !time) {
+        alert('Please fill in all fields');
+        return;
+      }
+      
+      closeModal();
+      successDiv.style.display = 'block';
+      successDiv.textContent = t('successMessage');
+      
+      setTimeout(() => {
+        successDiv.style.display = 'none';
+      }, 5000);
+    });
+
+    cancelModalBtn.addEventListener('click', closeModal);
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) closeModal();
+    });
+
+    // Map controls
+    document.getElementById('zoomInBtn').addEventListener('click', () => {
+      if (map) map.zoomIn();
+    });
+    
+    document.getElementById('zoomOutBtn').addEventListener('click', () => {
+      if (map) map.zoomOut();
+    });
+    
+    document.getElementById('locateMeBtn').addEventListener('click', locateUser);
+    refreshLocationBtn.addEventListener('click', locateUser);
+    
+    sortByDistanceBtn.addEventListener('click', () => {
+      if (userLocation) {
+        renderCenters();
+      } else {
+        locateUser();
+      }
+    });
+
+    // Language selection
+    langBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const lang = btn.dataset.lang;
+        languageScreen.style.display = 'none';
+        mainApp.style.display = 'flex';
+        applyLanguage(lang);
+        
+        if (!userLocation) {
+          locateUser();
+        } else {
+          updateLocationDisplay();
+          renderCenters();
+          if (!map && userLocation) {
+            initMap(userLocation.lat, userLocation.lng);
+          }
+        }
+      });
+    });
+
+    document.getElementById('currentLangBadge').addEventListener('click', () => {
+      mainApp.style.display = 'none';
+      languageScreen.style.display = 'flex';
+    });
+
+    // Initialize
+    languageScreen.style.display = 'flex';
+    mainApp.style.display = 'none';
+  })();
+</script>
+</body>
+</html>
