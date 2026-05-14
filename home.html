@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NearCare — Find Hospitals Near You in Rwanda</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="loader-overlay" id="loader">
+  <div class="spinner"></div>
+  <div class="loader-text" id="loaderText">Detecting your location…</div>
+</div>
+
+<nav>
+  <div class="logo">
+    <div class="logo-icon"></div>
+    <span class="logo-text">Near<span>Care</span></span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="home.html" class="active">Home</a></li>
+    <li><a href="Hospitals.html">Find Hospitals</a></li>
+    <li><a href="emergency.html">Emergency</a></li>
+    <li><a href="about.html">About Rwanda Health</a></li>
+    <li><a href="#" class="nav-cta">Get the App</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge">🇷🇼 Rwanda Health Network</div>
+  <h1>Find <em>care</em> wherever<br>you are in Rwanda</h1>
+  <p>Instantly locate hospitals, clinics, and health centres near your current location across all 30 districts.</p>
+  <div class="hero-actions">
+    <button class="btn-primary" onclick="detectLocation()">
+      <span>📍</span> Use My Location
+    </button>
+    <button class="btn-secondary" onclick="document.getElementById('search').focus()">Browse All</button>
+  </div>
+</section>
+
+<div class="stats-bar">
+  <div class="stat">
+    <div class="stat-num">487</div>
+    <div class="stat-label">Health Facilities</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">30</div>
+    <div class="stat-label">Districts Covered</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">5</div>
+    <div class="stat-label">Provinces</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">24/7</div>
+    <div class="stat-label">Emergency Access</div>
+  </div>
+</div>
+
+<div class="main-content">
+
+  <div class="sidebar">
+
+    <div class="card">
+      <div class="location-panel">
+        <div class="location-status">
+          <div class="pulse-dot" id="pulseDot"></div>
+          <div>
+            <div class="location-text" id="locationText">Location not detected</div>
+            <div class="location-sub" id="locationSub">Tap below to find nearby hospitals</div>
+          </div>
+        </div>
+        <button class="detect-btn" onclick="detectLocation()">
+          <span>📍</span> Detect My Location
+        </button>
+      </div>
+    </div>
+
+
+    <div class="card">
+      <div class="card-header"><span class="card-title">Search Radius</span></div>
+      <div class="radius-wrap">
+        <label>Nearby</label>
+        <input type="range" class="radius-slider" id="radiusSlider" min="1" max="50" value="20" oninput="updateRadius(this.value)">
+        <span class="radius-val" id="radiusVal">20 km</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="card-title">Filter by Type</span></div>
+      <div class="filter-bar">
+        <button class="filter-pill active" data-type="all" onclick="filterHospitals(this, 'all')">All</button>
+        <button class="filter-pill" data-type="hospital" onclick="filterHospitals(this, 'hospital')">🏥 Hospitals</button>
+        <button class="filter-pill" data-type="clinic" onclick="filterHospitals(this, 'clinic')">🩺 Clinics</button>
+        <button class="filter-pill" data-type="emergency" onclick="filterHospitals(this, 'emergency')">🚨 Emergency</button>
+        <button class="filter-pill" data-type="health-center" onclick="filterHospitals(this, 'health-center')">💊 Health Centres</button>
+      </div>
+    </div>
+
+    <div class="card emergency-card" id="emergency">
+      <div class="card-header"><span class="card-title emergency-title">Emergency SOS</span></div>
+      <div class="location-panel">
+        <div class="emergency-content">Access urgent care faster by locating the nearest emergency unit and reaching ambulance services with one tap.</div>
+        <div class="emergency-actions">
+          <button class="emergency-btn" onclick="triggerEmergency()">🚨 Find Nearest Emergency</button>
+          <button class="emergency-call" onclick="window.location.href='tel:912'">📞 Call 912 Now</button>
+        </div>
+        <div class="emergency-note" id="emergencyStatus">Dial 912 for immediate ambulance dispatch if you are in danger.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Nearby Facilities</span>
+        <span style="font-size:12px;color:var(--gray-400);" id="countLabel">–</span>
+      </div>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" id="search" placeholder="Search hospital name or district…" oninput="renderList()">
+      </div>
+      <div class="hospital-list" id="hospitalList"></div>
+    </div>
+
+  </div>
+
+  <div class="map-container">
+    <div class="map-card">
+      <div class="map-toolbar">
+        <div class="map-title">
+          🗺️ Live Map View
+        </div>
+        <div class="map-controls">
+          <button class="map-btn" onclick="map.zoomIn()" title="Zoom in">+</button>
+          <button class="map-btn" onclick="map.zoomOut()" title="Zoom out">−</button>
+          <button class="map-btn" onclick="resetMapView()" title="Reset view">⌖</button>
+        </div>
+      </div>
+      <div id="map"></div>
+      <div class="detail-panel" id="detailPanel">
+        <div class="detail-header">
+          <div class="detail-name" id="detailName">–</div>
+          <button class="close-detail" onclick="closeDetail()">✕</button>
+        </div>
+        <div class="detail-grid" id="detailGrid"></div>
+        <div class="detail-actions">
+          <button class="dir-btn" id="dirBtn">🧭 Get Directions</button>
+          <button class="call-btn" id="callBtn">📞 Call Now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <p><strong>NearCare Rwanda</strong> — Connecting communities to quality healthcare since 2026.</p>
+  <p style="margin-top:4px">Data sourced from Rwanda Ministry of Health · Kigali, Rwanda</p>
+</footer>
+
+<script src="script.js"></script>
+
+<button class="emergency-floating" onclick="window.location.href='emergency.html'">🚨 Emergency Help</button>
+
+</body>
+</html>
