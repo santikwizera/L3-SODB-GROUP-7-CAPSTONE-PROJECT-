@@ -1,257 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>NearCare Rwanda</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<link rel="stylesheet" href="fixed-demo.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-</head>
-<body>
-
-<div class="phone-frame">
-  <!-- Status Bar -->
-  <div class="status-bar">
-    <span>9:41</span>
-    <div class="status-icons">
-      <span>📶</span>
-      <span>📶</span>
-      <span>🔋</span>
-    </div>
-  </div>
-
-  <!-- Screens -->
-  <div class="screens-container" id="screensContainer">
-    
-    <!-- Language Screen -->
-    <div class="language-screen" id="languageScreen">
-      <div class="app-icon">🏥</div>
-      <h2>Near<span style="color:var(--green-400);">Care</span></h2>
-      <p class="subtitle" id="langSubtitle">Your healthcare finder in Rwanda</p>
-      <div class="language-grid">
-        <button class="lang-btn" data-lang="en">
-          <span style="font-size:2rem;">🇺🇸</span> English
-        </button>
-        <button class="lang-btn" data-lang="fr">
-          <span style="font-size:2rem;">🇫🇷</span> Français
-        </button>
-        <button class="lang-btn" data-lang="rw">
-          <span style="font-size:2rem;">🇷🇼</span> Kinyarwanda
-        </button>
-        <button class="lang-btn" data-lang="sw">
-          <span style="font-size:2rem;">🇹🇿</span> Kiswahili
-        </button>
-      </div>
-    </div>
-
-    <!-- FIND SCREEN -->
-    <div class="app-screen" id="findScreen">
-      <div class="app-header">
-        <div class="header-top">
-          <div class="header-logo">🏥 Near<span>Care</span></div>
-          <div class="lang-badge" id="langBadge" onclick="showLanguageScreen()">🌐 <span id="langLabel">EN</span></div>
-        </div>
-        <div class="location-bar" onclick="detectLocation()">
-          <div class="pulse-dot" id="pulseDot"></div>
-          <span id="locationText" style="flex:1; font-size:0.8rem;">Tap to detect location</span>
-          <i class="fas fa-location-arrow" style="color:var(--green-400);"></i>
-        </div>
-      </div>
-
-      <div class="quick-stats">
-        <div class="stat-chip">
-          <span>📍</span>
-          <span><strong id="nearbyCount">24</strong> <span id="nearbyLabel">nearby</span></span>
-        </div>
-        <div class="stat-chip">
-          <span>🩺</span>
-          <span><strong id="availableCount">18</strong> <span id="availableLabel">available</span></span>
-        </div>
-      </div>
-
-      <div class="category-scroll">
-        <div class="category-chips" id="categoryChips">
-          <button class="cat-chip active" data-cat="all">🏥 All</button>
-          <button class="cat-chip" data-cat="hospital">🏥 Hospitals</button>
-          <button class="cat-chip" data-cat="clinic">🩺 Clinics</button>
-          <button class="cat-chip" data-cat="dentist">🦷 Dentists</button>
-          <button class="cat-chip" data-cat="pharmacy">💊 Pharmacy</button>
-          <button class="cat-chip" data-cat="eye-care">👁️ Eye</button>
-          <button class="cat-chip" data-cat="maternity">🤰 Maternity</button>
-          <button class="cat-chip" data-cat="heart-hospital">❤️ Heart</button>
-          <button class="cat-chip" data-cat="children-hospital">👶 Children</button>
-          <button class="cat-chip" data-cat="emergency">🚨 Emergency</button>
-        </div>
-      </div>
-
-      <div class="map-wrapper">
-        <div id="map"></div>
-      </div>
-
-      <div class="section-header">
-        <div class="section-title">
-          <i class="fas fa-hospital"></i> <span id="listTitle">Nearby Facilities</span>
-          <span class="section-badge" id="listCount">24</span>
-        </div>
-        <input type="range" id="radiusSlider" min="1" max="50" value="20" oninput="updateRadius(this.value)" style="width:80px; accent-color:var(--green-400);">
-      </div>
-
-      <div class="facilities-list" id="facilitiesList"></div>
-    </div>
-
-    <!-- MAP SCREEN -->
-    <div class="app-screen" id="mapScreen">
-      <div class="app-header">
-        <div class="header-top">
-          <div class="header-logo">🗺️ <span id="mapTitle">Healthcare Map</span></div>
-          <div class="lang-badge" onclick="showLanguageScreen()">🌐</div>
-        </div>
-      </div>
-      <div class="map-fullscreen">
-        <div id="mapFull"></div>
-        <div class="map-legend">
-          <div class="legend-item">🏥 Hospitals</div>
-          <div class="legend-item">🩺 Clinics</div>
-          <div class="legend-item">🦷 Dentists</div>
-          <div class="legend-item">💊 Pharmacy</div>
-          <div class="legend-item">🚨 Emergency</div>
-          <div class="legend-item" style="background:var(--green-400);color:white;">📍 You</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- EMERGENCY SCREEN -->
-    <div class="app-screen emergency-screen" id="emergencyScreen">
-      <div class="emergency-hero">
-        <h2 id="emergencyTitle">🚨 Emergency Services</h2>
-        <p id="emergencySubtitle">24/7 Emergency Response in Rwanda</p>
-        <div class="emergency-number">912</div>
-        <button class="emergency-btn" onclick="window.location.href='tel:912'">
-          <i class="fas fa-phone"></i> <span id="callEmergency">Call Emergency Now</span>
-        </button>
-      </div>
-      <div class="emergency-info">
-        <div class="emergency-card">
-          <div class="emergency-card-icon">🚑</div>
-          <div class="emergency-card-info">
-            <h4 id="ambulanceTitle">Ambulance Services</h4>
-            <p id="ambulanceDesc">SAMU Rwanda: Call 912 for immediate ambulance dispatch</p>
-          </div>
-        </div>
-        <div class="emergency-card">
-          <div class="emergency-card-icon">🏥</div>
-          <div class="emergency-card-info">
-            <h4 id="erTitle">Emergency Rooms</h4>
-            <p id="erDesc">CHUK, King Faisal, and Military Hospital have 24/7 ER</p>
-          </div>
-        </div>
-        <div class="emergency-card">
-          <div class="emergency-card-icon">🩸</div>
-          <div class="emergency-card-info">
-            <h4 id="bloodTitle">Blood Bank</h4>
-            <p id="bloodDesc">National Blood Transfusion Centre: +250 788 304 000</p>
-          </div>
-        </div>
-        <div class="emergency-card">
-          <div class="emergency-card-icon">🔥</div>
-          <div class="emergency-card-info">
-            <h4 id="fireTitle">Fire & Rescue</h4>
-            <p id="fireDesc">Fire Brigade: Call 111 for fire emergencies</p>
-          </div>
-        </div>
-        <div class="emergency-card">
-          <div class="emergency-card-icon">👮</div>
-          <div class="emergency-card-info">
-            <h4 id="policeTitle">Police Emergency</h4>
-            <p id="policeDesc">Rwanda National Police: Call 112 for police assistance</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- APPOINTMENTS SCREEN -->
-    <div class="app-screen appointments-screen" id="appointmentsScreen">
-      <div class="appointments-header">
-        <h2 id="apptsTitle">📅 My Appointments</h2>
-        <p style="opacity:0.9; font-size:0.85rem;" id="apptsSubtitle">Manage your upcoming bookings</p>
-      </div>
-      <div class="appointments-list" id="appointmentsList">
-        <!-- Dynamically filled -->
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Bottom Navigation -->
-  <div class="bottom-nav" id="bottomNav" style="display:none;">
-    <button class="nav-item active" data-screen="findScreen">
-      <i class="fas fa-search-location"></i>
-      <span id="navFind">Find</span>
-    </button>
-    <button class="nav-item" data-screen="mapScreen">
-      <i class="fas fa-map-marked-alt"></i>
-      <span id="navMap">Map</span>
-    </button>
-    <button class="nav-item" data-screen="emergencyScreen">
-      <div class="nav-item-wrapper">
-        <i class="fas fa-phone-alt" style="color:var(--red-500);"></i>
-      </div>
-      <span id="navEmergency" style="color:var(--red-500);">Emergency</span>
-    </button>
-    <button class="nav-item" data-screen="appointmentsScreen">
-      <div class="nav-item-wrapper">
-        <i class="fas fa-calendar-check"></i>
-        <span class="nav-badge" id="apptBadge" style="display:none;">0</span>
-      </div>
-      <span id="navAppointments">Appts</span>
-    </button>
-  </div>
-</div>
-
-<!-- Detail Sheet -->
-<div class="overlay-bg" id="overlayBg" onclick="closeDetailSheet()"></div>
-<div class="detail-sheet" id="detailSheet">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header">
-    <div class="sheet-name" id="sheetName">–</div>
-    <button class="sheet-close" onclick="closeDetailSheet()">✕</button>
-  </div>
-  <div class="sheet-grid" id="sheetGrid"></div>
-  <div class="sheet-actions">
-    <button class="sheet-btn btn-directions" id="dirBtn">🧭 Directions</button>
-    <button class="sheet-btn btn-book" id="bookSheetBtn">📞 Book Appointment</button>
-  </div>
-</div>
-
-<!-- Appointment Modal -->
-<div class="modal-overlay" id="appointmentModal">
-  <div class="modal-sheet">
-    <h3 id="modalTitle">📅 Book Appointment</h3>
-    <div id="modalFacilityName" style="font-weight:600; margin-bottom:12px; color:var(--green-800);"></div>
-    <input type="text" id="patientName" placeholder="Full name">
-    <input type="tel" id="patientPhone" placeholder="Phone number">
-    <select id="appointmentTime">
-      <option value="">Select time</option>
-      <option value="09:00">09:00 AM</option>
-      <option value="10:00">10:00 AM</option>
-      <option value="11:00">11:00 AM</option>
-      <option value="14:00">02:00 PM</option>
-      <option value="15:30">03:30 PM</option>
-    </select>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-      <button class="btn-confirm" onclick="confirmBooking()">Confirm</button>
-    </div>
-  </div>
-</div>
-
-<!-- Toast -->
-<div class="toast" id="toast"></div>
-
-<script>
 // ==================== DATA ====================
 const FACILITIES = [
   { id:1, name:"King Faisal Hospital", district:"Gasabo, Kigali", category:"hospital", lat:-1.9500, lng:30.0588, open:"24h", rating:4.8, phone:"+250788303000", services:"Surgery, ICU, Cardiology", icon:"🏥" },
@@ -553,11 +299,9 @@ function switchScreen(screenId) {
 
 // ==================== MAPS ====================
 function initMaps() {
-  // Small map for Find screen
   map = L.map('map', { zoomControl: false, attributionControl: false }).setView([userLat, userLng], 12);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
   
-  // Full map for Map screen
   mapFull = L.map('mapFull', { zoomControl: false, attributionControl: false }).setView([userLat, userLng], 13);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(mapFull);
   
@@ -598,7 +342,6 @@ function updateFullMap() {
     fullMarkers.push(m);
   });
   
-  // User marker
   if (userLocated) {
     L.circleMarker([userLat, userLng], { radius: 8, color: '#639922', fillColor: '#639922', fillOpacity: 1 }).addTo(mapFull)
       .bindPopup('<b>📍 You are here</b>');
@@ -777,7 +520,6 @@ function confirmBooking() {
   const facilityName = document.getElementById('modalFacilityName').textContent;
   const facilityId = FACILITIES.find(f => f.name === facilityName)?.id;
   
-  // Save appointment
   const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
   const apt = {
     id: Date.now(),
@@ -843,6 +585,3 @@ window.addEventListener('load', () => {
   document.getElementById('bottomNav').style.display = 'none';
   document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
 });
-</script>
-</body>
-</html>
